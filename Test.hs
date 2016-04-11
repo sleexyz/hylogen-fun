@@ -449,13 +449,13 @@ candyRoad5 = 0.01 *^ Vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
   & (clamp 0 1)
   where
     r :: Vec1 -> Vec1
-    r v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) ** 10
+    r v = v *Y audio * cos(X audio * 10 * sin(tim + 10 *Y uvN)) ** 1
 
     g :: Vec1 -> Vec1
-    g v = v *Y audio * cos(X audio* 10 * sin(tim + X uvN * 100)) ** 1
+    g v = v *Y audio * cos(X audio* 10 * sin(tim + 10 *Y uvN)) ** 1
 
     b :: Vec1 -> Vec1
-    b v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) **0.1
+    b v = v *Y audio * cos(X audio * 10 * sin(tim + 10 *Y uvN)) ** 1
 
     tim = time * 0.01
 
