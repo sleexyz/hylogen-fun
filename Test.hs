@@ -1,3 +1,4 @@
+{-# LANGUAGE NoMonomorphismRestriction #-}
 module Test where
 
 import Hylogen
@@ -11,6 +12,7 @@ rot phi a = Vec2 ( cos phi * (X a)
                    + cos phi * (Y a)
                  )
 
+radius :: Vec2 -> Vec1
 radius uv' = sqrt (X uv' ** 2 + Y uv' ** 2)
 
 sigmoid :: Vec1 -> Vec1
@@ -18,36 +20,18 @@ sigmoid x = recip (1 + exp (negate x))
 
 phi uv' = atan (Y uv'/ X uv')
 
-linexp :: (Vec1, Vec1, Vec1, Vec1) -> Vec1 -> Vec1
-linexp (a, b, c, d) x = c * ((d / c) ** ((x - a) / (b - a)))
-
-linlin :: (Vec1, Vec1, Vec1, Vec1) -> Vec1 -> Vec1
-linlin (a, b, c, d) x = c + (d - c) * ((x - a) / (b - a))
-
-concentric :: Vec4
-concentric = Vec4 (r, g, b, 1)
-  where
-    val = fract(radius uv * 10 + time)
-    r = val
-    g = val * 0.2
-    b = val * 0.5
-
 world :: Vec4
 world = Vec4 (r, g, b, 1)
   where
     gap = 10
     m = sin(time * 0.1) & linexp (-1, 1, 10e1, 10e10)
     ratemul = 0.5
-    val   = cos(radius uv * m + time + sin(time + gap) * ratemul)
-    val'  = cos(radius uv * m + time + sin(time + gap ** 2) * ratemul)
-    val'' = cos(radius uv * m + time + sin(time + gap ** 3) * ratemul)
+    val   = cos(radius uvN * m + time + sin(time + gap) * ratemul)
+    val'  = cos(radius uvN * m + time + sin(time + gap ** 2) * ratemul)
+    val'' = cos(radius uvN * m + time + sin(time + gap ** 3) * ratemul)
     r = val ** 2
     g = val' ** 2
     b = val'' ** 2
-
--- main :: IO ()
--- main = writeFile "./shader.glsl" . toGLSL
---     $ world
 
 
 poop  = Vec4 (r, g, b, 1)
@@ -70,12 +54,11 @@ illusion =  Vec4 (x, x, x, 1)
   where
     x = sin (time
              & (*0.1)
-             & \x -> uv
+             & \x -> uvN
                    & rot (sin $time)
                    & \uv' -> sin (sqrt(x))*10 / X uv' - (sin(sqrt x)) * 10 /Y uv')
       & \x -> 1/ sqrt x
 
-angle uv' = atan (Y uv'/ X uv')
 
 
 coolio = Vec4 (v, v, v, 1)
@@ -87,7 +70,7 @@ coolio = Vec4 (v, v, v, 1)
 
     circles = product $ map fn [0..10]
       where
-        fn x = circle (uv * m * fromInteger x)
+        fn x = circle (uvN * m * fromInteger x)
     v = circles
 
 cooooool =  Vec4 (v, v, v, 1)
@@ -99,15 +82,8 @@ cooooool =  Vec4 (v, v, v, 1)
 
     circles = product $ map fn [0..11]
       where
-        fn x = circle (uv * m * fromVec1 (fromInteger x + 0.001*time))
+        fn x = circle (uvN * m * fromVec1 (fromInteger x + 0.001*time))
     v = circles
-
-mitosis = (0.1 * Vec4 (v, v, v, 1)  + bb)
-  where
-    v = product $ map circle$ map fromInteger [0.. 10]
-    circle x = 1 - 1 * radius (sin (uvN * 10 + 0.1 *  x) - m)
-    bb = Texture2D backBuffer (((0.5 * (uvN * 0.95)) + 0.5))
-    m = Vec2 (X mouse, Y mouse)
 
 
 comp = (0.01 * Vec4 (v, v, v, 1)  + bb)
@@ -198,20 +174,6 @@ myColor3 = 0.1 *^ Vec4 (r,g ,b, 1) + bb
         uvN' = rot time (Y audio *^ Vec2 (Y uvN , X uvN) + (Z audio *^ 0.2) * fromInteger (x))
     bb = Texture2D backBuffer (0.5 * (rot tim (uvN * 1.1)) + 0.5)
     tim = time * 0.1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -375,20 +337,145 @@ test = select true black white
 --   where
 --     v = select false 1 0
 
-main = putStrLn . toGLSL $ new
-new = 0.01 *^ Vec4 (r,g ,b, 1) + 1.1 *^ bb
+candyRoad = 0.01 *^ Vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    b = 10 -  v * Y audio * X uvN
+    b = 1 -  v * Y audio * X uvN
     r = v * Z audio * fract (radius (uvN * 100))
     g = v * W audio * cos (radius (uvN * 100))
-    tim = time/ 10e1
-    v = product $ map fn [0..1]
+    v = product $ map fn [0..10]
     fn n = Y (Vec2 (X uvN, Y uvN))
-      & (\x -> 10 * x + (fromInteger n) * 5)
+      & (\x -> 10 * x + (fromInteger n) * 10)
       & tan
     bb = Texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn = id
+          . (+Vec2(0, -0.33))
           . mirror
-          . rot (3* W audio)
-          . (^*(X audio & linexp (0, 1, 1, 0.9)))
+          . rot (0.3* W audio* m)
+          . (^*(X audio & linexp (0, 1, 1.1, 0.9)))
+          . (+Vec2(0, 0.33))
+    m = sin(time) & linexp (-1, 1, 0.5, 1)
+
+candyRoad2 = 0.01 *^ Vec4 (r v,g v ,b v, 1) + 0.99 *^ bb
+  where
+    r :: Vec1 -> Vec1
+    r v = v - tan (v * 0.001 + sin(tim + Y uvN)) ** 0.1
+
+    g :: Vec1 -> Vec1
+    g v = v - tan (v * 0.001 + sin(tim + X uvN)) ** 0.3
+
+    b :: Vec1 -> Vec1
+    b v = v - tan (v * 0.001 + sin(tim + radius uvN)) ** 0.4
+
+    tim = time * 0.01
+
+    v = (X audio & linexp (0, 1, 1, 100)) - radius (uvN - vec (0.5 * Y audio, -0.333)) * Y audio
+      & (*(X audio & linexp (0, 1, 0.001, 1)))
+      & (tan)
+      & (cos)
+      & (+(W audio * Y uvN))
+      & (fract)
+      & (*(Y audio & linexp (0, 1, 1, 10)))
+      & (tan)
+    bb = Texture2D backBuffer (0.5 * fn uvN + 0.5)
+      where
+        fn = id
+          . (+Vec2(0, -0.33))
+          . mirror
+          . rot (0.3 * W audio* m)
+          . (^*(X audio & linexp (0, 1, 1.1, 0.9)))
+          . (+Vec2(0, 0.33))
+    m = sin(time) & linexp (-1, 1, 0.5, 1)
+
+
+candyRoad3 = 0.01 *^ Vec4 (r v, g v , b v, 1) + 0.99 *^ bb
+  -- & clamp 0 1
+  where
+    r :: Vec1 -> Vec1
+    r v = Y audio * cos(X audio * 10 * sin(tim + Y uvN * 100)) ** 0.5
+
+    g :: Vec1 -> Vec1
+    g v = Y audio * cos(X audio* 10 * sin(tim + X uvN * 100)) ** 0.1
+
+    b :: Vec1 -> Vec1
+    b v = Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) **2
+
+    v = 1
+
+    tim = time * 0.01
+    bb = Texture2D backBuffer (0.5 * fn uvN + 0.5)
+      where
+        fn :: Vec2 -> Vec2
+        fn = id
+          . rot ((-0.2) * W audio* m)
+          . mirror
+          . rot ((-0.2) * W audio* m)
+          . (^*(X audio & linexp (0, 1, 1.1, 0.85)))
+          . (+vec (-k, k))
+    m = sin(time) & linexp (-1, 1, 0.5, 1)
+    k = X audio & linexp (0, 1, 0.000001, 0.001)
+
+candyRoad4 = 0.01 *^ Vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
+  & (clamp 0 1)
+  where
+    r :: Vec1 -> Vec1
+    r v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) ** 10
+
+    g :: Vec1 -> Vec1
+    g v = v *Y audio * cos(X audio* 10 * sin(tim + X uvN * 100)) ** 1
+
+    b :: Vec1 -> Vec1
+    b v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) **0.1
+
+    tim = time * 0.01
+
+    v = radius (uvN - vec (0.1, 0)) * Z audio
+      & (*(X audio & linexp (0, 1, 1, 10e4)))
+      & tan
+
+    bb = Texture2D backBuffer (0.5 * fn uvN + 0.5)
+      where
+        fn :: Vec2 -> Vec2
+        fn = id
+          . rot ((-0.02) * (W audio+ X audio)* m)
+          . (^*((X audio & linexp (0, 1, 1.25, 0.81))))
+          . mirror
+          . rot ((-0.2) * W audio* m)
+          . (+vec (-k, 0))
+    m = sin(time) & linexp (-1, 1, 0.5, 1)
+    k = Y audio & linexp (0, 1, 0.0000001, 0.001)
+
+candyRoad5 = 0.01 *^ Vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
+  & (clamp 0 1)
+  where
+    r :: Vec1 -> Vec1
+    r v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) ** 10
+
+    g :: Vec1 -> Vec1
+    g v = v *Y audio * cos(X audio* 10 * sin(tim + X uvN * 100)) ** 1
+
+    b :: Vec1 -> Vec1
+    b v = v *Y audio * cos(X audio * 10 * sin(tim + X uvN * 100)) **0.1
+
+    tim = time * 0.01
+
+    v = radius (uvN - vec (0.1, 0)) * Z audio
+      & (*(X audio & linexp (0, 1, 1, 10e4)))
+      & tan
+
+    bb = Texture2D backBuffer (0.5 * fn uvN + 0.5)
+      where
+        fn :: Vec2 -> Vec2
+        fn = id
+          . rot ((-0.02) * (W audio+ X audio)* m)
+          . (^*((X audio & linexp (0, 1, 1.25, 0.81))))
+          . mirror
+          . rot ((-0.2) * W audio* m)
+          . (+vec (-k, 0))
+          . (**0.999)
+          . (sin)
+
+    m = sin(time) & linexp (-1, 1, 0.5, 1)
+    k = Y audio & linexp (0, 1, 0.0000001, 0.001)
+-- TODO: make flash
+main = putStrLn . toGLSL $ candyRoad5
