@@ -153,6 +153,353 @@ thanger = mix 0.2 fresh bb
           & (\x -> Vec2 (X x, Y x))
           & (\x -> x * 0.5 + 0.5)
 
+notgameOfLife :: Vec4
+notgameOfLife = Vec4 (v, v, v, 1)
+  where
+    res = 1000
+    v = select alive 1 0
+    alive = sum [rule1, rule2, rule3, rule4]
+
+    neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                , ( 0,-1),          ( 0, 1)
+                , ( 1,-1), ( 1, 0), ( 1, 1)
+                ]
+
+    numAlive :: Vec1
+    numAlive = sum $ map getVal neighbors
+      where
+        getVal offset = X $ Texture2D backBuffer
+          $ uv - Vec2 offset ^* (1/res)
+
+    wasAlive = val `gt` 0
+      where
+        val = X $ Texture2D backBuffer $ uv
+
+    rule1 = wasAlive * (numAlive `geq` 2)
+    rule2 = wasAlive * (numAlive `leq` 3)
+    rule3 = numAlive `eq` 1
+    rule4 = (max_ (X dist) (Y dist)) `leq` (1/res)
+      where
+        dist = uvN
+        -- dist = (*res) . floor_ . (*(1/res)) $ uvN - mouse
+
+notgameOfLifeEither :: Vec4
+notgameOfLifeEither = Vec4 (v, v, v, 1)
+  where
+    res = 500
+    v = select alive 1 0
+    alive = sum [rule1, rule2, rule3, rule4]
+
+    neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                , ( 0,-1),          ( 0, 1)
+                , ( 1,-1), ( 1, 0), ( 1, 1)
+                ]
+
+    numAlive :: Vec1
+    numAlive = sum $ map getVal neighbors
+      where
+        getVal offset = X $ Texture2D backBuffer
+          $ uv - Vec2 offset ^* (1/res)
+
+    wasAlive = val `gt` 0
+      where
+        val = X $ Texture2D backBuffer $ uv
+
+    rule1 = wasAlive * (numAlive `geq` 2)
+    rule2 = wasAlive * (numAlive `leq` 3)
+    rule3 = numAlive `eq` 3
+    rule4 = taxicab dist `leq` (1/res)
+      where
+        dist = uvN - mouse
+
+taxicab :: Vec2 -> Vec1
+taxicab x = max_ (abs $ X x) (abs $ Y x)
 
 
-main = putStrLn $ toGLSL $ thanger
+downsample :: (HyloPrim a, Fractional a) => a -> a -> a
+downsample a x = floor_ (a*x) / a
+
+
+gameOfLifeTake1 :: Vec4
+gameOfLifeTake1 = Vec4 (v, v, v, 1)
+  where
+    res = 50
+
+    v = select alive 1 0
+    alive = sum [rule1, rule3, rule4]
+
+    neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                , ( 0,-1),          ( 0, 1)
+                , ( 1,-1), ( 1, 0), ( 1, 1)
+                ]
+
+    numAlive :: Vec1
+    numAlive = sum $ map getVal neighbors
+      where
+        getVal offset = X $ Texture2D backBuffer
+          $ downsample res
+          $ (uvN * 0.5 + 0.5) - Vec2 offset ^* (1/res)
+
+    wasAlive = val `gt` 0
+      where
+        val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+    rule1 = wasAlive * ((numAlive `geq` 2) * (numAlive `leq` 3))
+    rule3 = numAlive `eq` 3
+    rule4 = taxicab dist `lt` (1/res)
+      where
+        dist = (downsample res uvN) - mouse
+
+
+-- neighbors :: (Eq a, Num a) => [[a]]
+-- neighbors = filter (/=[0, 0]) $ do
+--   x <- [-1, 0, 1]
+--   y <- [-1, 0, 1]
+--   return [x, y]
+
+gridTest :: Vec4
+gridTest = Vec4 (v, v, v, 1)
+  where
+    res = 4
+    n = 1
+    duv = downsample res uv
+    v = select ((X duv `lt` ((n+1)/res)) * (X duv `geq` ((n)/res))) (X uv) 0
+
+gridTest2:: Vec4
+gridTest2 = Vec4 (v, v, v, 1)
+  where
+    res = 5
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 1/res
+    mini= downsample res $ mouse
+
+    draw = product [ X duv `lt` X maxi
+                   , X duv `geq` X mini
+                   , Y duv `lt` Y maxi
+                   , Y duv `geq` Y mini
+                   ]
+    v = select draw 1 0
+
+drawingApp:: Vec4
+drawingApp = Vec4 (v, v, v, 1)
+  where
+    res = 10
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 1/res
+    mini= downsample res $ mouse
+
+    drawWithMouse = product [ duv `lt` maxi
+                            , duv `geq` mini
+                            ]
+
+    v = select drawWithMouse 1
+      $ select alive 1 0
+      where
+        alive = wasAlive
+
+        wasAlive = val `gt` 0
+          where
+            val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+drawingApp2:: Vec4
+drawingApp2 = Vec4 (v, v, v, 1)
+  where
+    res = 100
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 1/res
+    mini= downsample res $ mouse
+
+    drawWithMouse = product [ duv `lt` maxi
+                            , duv `geq` mini
+                            ]
+
+    v = select drawWithMouse 1
+      $ select alive invright 0
+      where
+        invright = (X $ Texture2D backBuffer $ (((uvN * res  + 1)/res) * 0.5 + 0.5))
+          & (\x -> (x * res + 1)/res)
+
+        alive = wasAlive
+
+        wasAlive = val `gt` 0
+          where
+            val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+notSupposedToBeGameOfLife :: Vec4
+notSupposedToBeGameOfLife = Vec4 (v, v, v, 1)
+  where
+    res = 100
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 1/res
+    mini= downsample res $ mouse
+
+    drawWithMouse = product [ duv `lt` maxi
+                            , duv `geq` mini
+                            ]
+
+    v = select drawWithMouse 1
+      $ select alive 1 0
+      where
+        alive = sum [rule1, rule3]
+
+        neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                    , ( 0,-1),          ( 0, 1)
+                    , ( 1,-1), ( 1, 0), ( 1, 1)
+                    ]
+
+        numAlive :: Vec1
+        numAlive = sum $ map getVal neighbors
+          where
+            getVal offset = X $ Texture2D backBuffer
+              $ id             ( uvN
+                                 & (\x -> (res * x + Vec2 offset) / res)
+                                 & (\x -> x * 0.5 + 0.5)
+                               )
+
+        wasAlive = val `gt` 0
+          where
+            val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+        rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
+        rule3 = negate wasAlive * numAlive `eq` 3
+
+gameOfLifeTake2 :: Vec4
+gameOfLifeTake2 = Vec4 (v, v, v, 1)
+  where
+    res = 1000
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 1000/res
+    mini= downsample res $ mouse
+
+    drawWithMouse = product [ duv `lt` maxi
+                            , duv `geq` mini
+                            ]
+
+    v = select drawWithMouse 1
+      $ select alive 1 0
+      where
+        alive = sum [rule1, rule3]
+
+        neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                    , ( 0,-1),          ( 0, 1)
+                    , ( 1,-1), ( 1, 0), ( 1, 1)
+                    ]
+
+        numAlive :: Vec1
+        numAlive = sum $ map getVal neighbors
+          where
+            getVal offset = X $ Texture2D backBuffer
+              $ id             ( uvN
+                                 & (\x -> (res * x + Vec2 offset) / res)
+                                 & (\x -> x * 0.5 + 0.5)
+                               )
+
+        wasAlive = val `gt` 0
+          where
+            val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+        rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
+        rule3 = negate wasAlive * numAlive `eq` 3
+
+gameOfLifeTake3:: Vec4
+gameOfLifeTake3 = Vec4 (v, v, v, 1)
+  where
+    res = fromVec1 $ floor_ $ X resolution /2
+
+    duv = downsample res uvN
+
+    maxi= downsample res $ mouse + 50/res
+    mini= downsample res $ mouse - 50/res
+
+    drawWithMouse = product [ duv `lt` maxi
+                            , duv `geq` mini
+                            ]
+
+    v = (select drawWithMouse 1 $ select alive 1 0)
+      where
+        alive = sum [rule1, rule3]
+
+        neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+                    , ( 0,-1),          ( 0, 1)
+                    , ( 1,-1), ( 1, 0), ( 1, 1)
+                    ]
+
+        numAlive :: Vec1
+        numAlive = sum $ map getVal neighbors
+          where
+            getVal offset = X $ Texture2D backBuffer
+              $ id             ( uvN
+                                 & (\x -> (res * x + Vec2 offset) / res)
+                                 & (\x -> x * 0.5 + 0.5)
+                               )
+
+        wasAlive = val `gt` 0
+          where
+            val = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+        rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
+        rule3 = negate wasAlive * numAlive `eq` 3
+
+
+sigmoid :: Vec1 -> Vec1
+sigmoid x = recip (1 + exp (negate x))
+
+selectSmooth :: Vec1 -> Vec1 -> Vec1 -> Vec1
+selectSmooth choice bw x = sigmoid (x - choice) * sigmoid (negate x - choice)
+
+testSelectSmooth :: Vec4
+testSelectSmooth = Vec4 (v, v, v, 1)
+  where
+    -- v = selectSmooth 0.01 1 (Y uv)
+    v = sigmoid (Y uvN * 10)
+
+-- gameOfLifeNoConditionals :: Vec4
+-- gameOfLifeNoConditionals = Vec4 (v, v, v, 1)
+--   where
+--     res = fromVec1 $ floor_ $ X resolution /2
+
+--     duv = downsample res uvN
+
+--     maxi= downsample res $ mouse + 200/res
+--     mini= downsample res $ mouse - 200/res
+
+--     drawWithMouse = product [ duv `lt` maxi
+--                             , duv `geq` mini
+--                             ]
+
+--     v = (select drawWithMouse 1 $ select alive 1 0)
+--       where
+--         alive = sum [ wasAlive
+--                       * ((numAlive `eq` 2) + (numAlive `eq` 3))
+--                     , negate wasAlive * numAlive `eq` 3
+--                     ]
+
+--         neighbors = [ (-1,-1), (-1, 0), (-1, 1)
+--                     , ( 0,-1),          ( 0, 1)
+--                     , ( 1,-1), ( 1, 0), ( 1, 1)
+--                     ]
+
+--         numAlive :: Vec1
+--         numAlive = sum $ map getVal neighbors
+--           where
+--             getVal offset = X $ Texture2D backBuffer
+--               $ id             ( uvN
+--                                  & (\x -> (res * x + Vec2 offset) / res)
+--                                  & (\x -> x * 0.5 + 0.5)
+--                                )
+
+--         wasAlive :: Vec1
+--         wasAlive = X $ Texture2D backBuffer $ (uvN * 0.5 + 0.5)
+
+
+main = putStrLn $ toGLSL $ gameOfLifeTake2
