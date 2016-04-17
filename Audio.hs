@@ -1,5 +1,5 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
-module Test where
+module Audio where
 
 import Hylogen
 import Data.VectorSpace
