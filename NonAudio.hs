@@ -9,10 +9,10 @@ import Data.Function
 import Control.Arrow
 
 rot :: Vec1 -> Vec2 -> Vec2
-rot phi a = vec2 ( cos phi * ((!X) a)
-                   + sin phi * ((!Y) a)
-                 , (-1) * sin phi * ((!X) a)
-                   + cos phi * ((!Y) a)
+rot phi a = vec2 ( cos phi * (x_ a)
+                   + sin phi * (y_ a)
+                 , (-1) * sin phi * (x_ a)
+                   + cos phi * (y_ a)
                  )
 
 
@@ -34,16 +34,16 @@ poop  = vec4 (r, g, b, 1)
   where
     tim = time * 0.1
       & \x -> tan x - sin x
-    pos = vec2 ((!X) uv - tim * 2, (!Y) uv - tim **2)
-    val = sin $ len pos * 10 * (sin $ ((!X) pos * (!Y) pos) /(!X) audio)
+    pos = vec2 (x_ uv - tim * 2, y_ uv - tim **2)
+    val = sin $ len pos * 10 * (sin $ (x_ pos * y_ pos) /x_ audio)
     r = val ** 10
-      + ((!X) uv * (!Y) uv + sin (time ** 0.2 * (!W) audio * 2))
+      + (x_ uv * y_ uv + sin (time ** 0.2 * w_ audio * 2))
     g = (1 * val **0.5)
-      - (cos ((!X) uv * (!Y) uv) + cos (time ** (0.5 * (!Z) audio) +(!X) audio))
-      * (sin ((!X) uv * 10 + time))
+      - (cos (x_ uv * y_ uv) + cos (time ** (0.5 * z_ audio) +x_ audio))
+      * (sin (x_ uv * 10 + time))
     b = (1 * val ** 2)
-      - ((!X) uv * (!Y) uv + sin (time ** 0.1 +(!X) audio))  - 1
-      * (sin ((!X) uv * 10 + time))
+      - (x_ uv * y_ uv + sin (time ** 0.1 +x_ audio))  - 1
+      * (sin (x_ uv * 10 + time))
 
 
 illusion =  vec4 (x, x, x, 1)
@@ -52,7 +52,7 @@ illusion =  vec4 (x, x, x, 1)
              & (*0.1)
              & \x -> uvN
                    & rot (sin $time)
-                   & \uv' -> sin (sqrt(x))*10 /(!X) uv' - (sin(sqrt x)) * 10 /(!Y) uv')
+                   & \uv' -> sin (sqrt(x))*10 /x_ uv' - (sin(sqrt x)) * 10 /y_ uv')
       & \x -> 1/ sqrt x
 
 coolio = vec4 (v, v, v, 1)
@@ -60,7 +60,7 @@ coolio = vec4 (v, v, v, 1)
     circle uv' = 1 - len uv'' * 10
       where
         uv'' = cos (uv' * 10)
-    m = vec2 ((!X) mouse, (!Y) mouse)
+    m = vec2 (x_ mouse, y_ mouse)
 
     circles = product $ map fn [0..10]
       where
@@ -72,7 +72,7 @@ cooooool =  vec4 (v, v, v, 1)
     circle uv' = tan $ 1 - len uv'' * 10
       where
         uv'' = cos (uv' * 10)
-    m = vec2 ((!X) mouse, (!Y) mouse)
+    m = vec2 (x_ mouse, y_ mouse)
 
     circles = product $ map fn [0..11]
       where
@@ -88,7 +88,7 @@ comp = (0.01 * vec4 (v, v, v, 1)  + bb)
 
 
     bb = texture2D backBuffer ((uvN * 0.95) * 0.5 + 0.5)
-    m = vec2 ((!X) mouse, (!Y) mouse)
+    m = vec2 (x_ mouse, y_ mouse)
 
 
 thang = (0.01 * vec4 (v, v, v, 1)  + bb)
@@ -98,20 +98,20 @@ thang = (0.01 * vec4 (v, v, v, 1)  + bb)
       & \x -> x / 5
 
 
-    bb = texture2D backBuffer ((uvN * (vec2((!X) audio,(!X) audio))) * 0.5 + 0.5)
-    m = vec2 ((!X) mouse, (!Y) mouse)
+    bb = texture2D backBuffer ((uvN * (vec2(x_ audio,x_ audio))) * 0.5 + 0.5)
+    m = vec2 (x_ mouse, y_ mouse)
 
 
 graph :: Vec4
 graph = v
   where
     resolution = 500
-    isDrawn =(!X) uv `lt` (1 / resolution)
+    isDrawn =x_ uv `lt` (1 / resolution)
 
-    v = select isDrawn fresh old
+    v = sel isDrawn fresh old
     fresh = vec4 (v, v, v, 1)
       where
-        v = select (abs (((!Y) uvN - (!Y) mouse)) `lt` 0.01) 1 0
+        v = sel (abs ((y_ uvN - y_ mouse)) `lt` 0.01) 1 0
         mul = 8
 
     old = texture2D backBuffer pos
@@ -120,7 +120,7 @@ graph = v
 
 
 opaque :: Vec4 -> Vec4
-opaque v = vec4 ((!X) v, (!Y) v, (!Z) v, 1)
+opaque v = vec4 (x_ v, y_ v, z_ v, 1)
 
 coolio2 :: Vec4
 coolio2 = circles
@@ -141,7 +141,7 @@ thanger = mix 0.2 fresh bb
       where
         bars = vec4 (v, v, v, 1)
           where
-            v = cos ((!X) uv * 10)
+            v = cos (x_ uv * 10)
         fn x = vec4 (v, v, v, 1)
           where
             v = (cos (len (uvN - mouse) * 10 + 3 * fromInteger x))
@@ -150,14 +150,14 @@ thanger = mix 0.2 fresh bb
         pos = uvN
           & (\x -> x * 0.9)
           & (rot (pi/2))
-          & (\x -> vec2 ((!X) x, (!Y) x))
+          & (\x -> vec2 (x_ x, y_ x))
           & (\x -> x * 0.5 + 0.5)
 
 notgameOfLife :: Vec4
 notgameOfLife = vec4 (v, v, v, 1)
   where
     res = 1000
-    v = select alive 1 0
+    v = sel alive 1 0
     alive = sum [rule1, rule2, rule3, rule4]
 
     neighbors = [ (-1,-1), (-1, 0), (-1, 1)
@@ -168,17 +168,17 @@ notgameOfLife = vec4 (v, v, v, 1)
     numAlive :: Vec1
     numAlive = sum $ map getVal neighbors
       where
-        getVal offset =(!X) $ texture2D backBuffer
+        getVal offset =x_ $ texture2D backBuffer
           $ uv - vec2 offset ^* (1/res)
 
     wasAlive = val `gt` 0
       where
-        val =(!X) $ texture2D backBuffer $ uv
+        val =x_ $ texture2D backBuffer $ uv
 
     rule1 = wasAlive * (numAlive `geq` 2)
     rule2 = wasAlive * (numAlive `leq` 3)
     rule3 = numAlive `eq` 1
-    rule4 = (max_ ((!X) dist) ((!Y) dist)) `leq` (1/res)
+    rule4 = (max_ (x_ dist) (y_ dist)) `leq` (1/res)
       where
         dist = uvN
         -- dist = (*res) . floor_ . (*(1/res)) $ uvN - mouse
@@ -187,7 +187,7 @@ notgameOfLifeEither :: Vec4
 notgameOfLifeEither = vec4 (v, v, v, 1)
   where
     res = 500
-    v = select alive 1 0
+    v = sel alive 1 0
     alive = sum [rule1, rule2, rule3, rule4]
 
     neighbors = [ (-1,-1), (-1, 0), (-1, 1)
@@ -198,12 +198,12 @@ notgameOfLifeEither = vec4 (v, v, v, 1)
     numAlive :: Vec1
     numAlive = sum $ map getVal neighbors
       where
-        getVal offset =(!X) $ texture2D backBuffer
+        getVal offset =x_ $ texture2D backBuffer
           $ uv - vec2 offset ^* (1/res)
 
     wasAlive = val `gt` 0
       where
-        val =(!X) $ texture2D backBuffer $ uv
+        val =x_ $ texture2D backBuffer $ uv
 
     rule1 = wasAlive * (numAlive `geq` 2)
     rule2 = wasAlive * (numAlive `leq` 3)
@@ -213,7 +213,7 @@ notgameOfLifeEither = vec4 (v, v, v, 1)
         dist = uvN - mouse
 
 taxicab :: Vec2 -> Vec1
-taxicab x = max_ (abs $(!X) x) (abs $ (!Y) x)
+taxicab x = max_ (abs $x_ x) (abs $ y_ x)
 
 
 downsample :: (Veccable a) => Vec a -> Vec a -> Vec a
@@ -225,7 +225,7 @@ gameOfLifeTake1 = vec4 (v, v, v, 1)
   where
     res = 50
 
-    v = select alive 1 0
+    v = sel alive 1 0
     alive = sum [rule1, rule3, rule4]
 
     neighbors = [ (-1,-1), (-1, 0), (-1, 1)
@@ -236,13 +236,13 @@ gameOfLifeTake1 = vec4 (v, v, v, 1)
     numAlive :: Vec1
     numAlive = sum $ map getVal neighbors
       where
-        getVal offset =(!X) $ texture2D backBuffer
+        getVal offset =x_ $ texture2D backBuffer
           $ downsample res
           $ (uvN * 0.5 + 0.5) - vec2 offset ^* (1/res)
 
     wasAlive = val `gt` 0
       where
-        val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+        val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
     rule1 = wasAlive * ((numAlive `geq` 2) * (numAlive `leq` 3))
     rule3 = numAlive `eq` 3
@@ -263,7 +263,7 @@ gridTest = vec4 (v, v, v, 1)
     res = 4
     n = 1
     duv = downsample res uv
-    v = select (((!X) duv `lt` ((n+1)/res)) * ((!X) duv `geq` ((n)/res))) ((!X) uv) 0
+    v = sel ((x_ duv `lt` ((n+1)/res)) * (x_ duv `geq` ((n)/res))) (x_ uv) 0
 
 gridTest2 :: Vec4
 gridTest2 = vec4 (v, v, v, 1)
@@ -275,12 +275,12 @@ gridTest2 = vec4 (v, v, v, 1)
     maxi= downsample res $ mouse + 1/res
     mini= downsample res $ mouse
 
-    draw = product [(!X) duv `lt`(!X) maxi
-                   ,(!X) duv `geq`(!X) mini
-                   , (!Y) duv `lt` (!Y) maxi
-                   , (!Y) duv `geq` (!Y) mini
+    draw = product [x_ duv `lt`x_ maxi
+                   ,x_ duv `geq`x_ mini
+                   , y_ duv `lt` y_ maxi
+                   , y_ duv `geq` y_ mini
                    ]
-    v = select draw 1 0
+    v = sel draw 1 0
 
 drawingApp:: Vec4
 drawingApp = vec4 (v, v, v, 1)
@@ -296,14 +296,14 @@ drawingApp = vec4 (v, v, v, 1)
                             , duv `geq` mini
                             ]
 
-    v = select drawWithMouse 1
-      $ select alive 1 0
+    v = sel drawWithMouse 1
+      $ sel alive 1 0
       where
         alive = wasAlive
 
         wasAlive = val `gt` 0
           where
-            val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
 drawingApp2:: Vec4
 drawingApp2 = vec4 (v, v, v, 1)
@@ -319,17 +319,17 @@ drawingApp2 = vec4 (v, v, v, 1)
                             , duv `geq` mini
                             ]
 
-    v = select drawWithMouse 1
-      $ select alive invright 0
+    v = sel drawWithMouse 1
+      $ sel alive invright 0
       where
-        invright = ((!X) $ texture2D backBuffer $ (((uvN * res  + 1)/res) * 0.5 + 0.5))
+        invright = (x_ $ texture2D backBuffer $ (((uvN * res  + 1)/res) * 0.5 + 0.5))
           & (\x -> (x * res + 1)/res)
 
         alive = wasAlive
 
         wasAlive = val `gt` 0
           where
-            val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
 notSupposedToBeGameOfLife :: Vec4
 notSupposedToBeGameOfLife = vec4 (v, v, v, 1)
@@ -345,8 +345,8 @@ notSupposedToBeGameOfLife = vec4 (v, v, v, 1)
                             , duv `geq` mini
                             ]
 
-    v = select drawWithMouse 1
-      $ select alive 1 0
+    v = sel drawWithMouse 1
+      $ sel alive 1 0
       where
         alive = sum [rule1, rule3]
 
@@ -358,7 +358,7 @@ notSupposedToBeGameOfLife = vec4 (v, v, v, 1)
         numAlive :: Vec1
         numAlive = sum $ map getVal neighbors
           where
-            getVal offset =(!X) $ texture2D backBuffer
+            getVal offset =x_ $ texture2D backBuffer
               $ id             ( uvN
                                  & (\x -> (res * x + vec2 offset) / res)
                                  & (\x -> x * 0.5 + 0.5)
@@ -366,7 +366,7 @@ notSupposedToBeGameOfLife = vec4 (v, v, v, 1)
 
         wasAlive = val `gt` 0
           where
-            val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
         rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
         rule3 = negate wasAlive * numAlive `eq` 3
@@ -385,8 +385,8 @@ gameOfLifeTake2 = vec4 (v, v, v, 1)
                             , duv `geq` mini
                             ]
 
-    v = select drawWithMouse 1
-      $ select alive 1 0
+    v = sel drawWithMouse 1
+      $ sel alive 1 0
       where
         alive = sum [rule1, rule3]
 
@@ -398,7 +398,7 @@ gameOfLifeTake2 = vec4 (v, v, v, 1)
         numAlive :: Vec1
         numAlive = sum $ map getVal neighbors
           where
-            getVal offset =(!X) $ texture2D backBuffer
+            getVal offset =x_ $ texture2D backBuffer
               $ id             ( uvN
                                  & (\x -> (res * x + vec2 offset) / res)
                                  & (\x -> x * 0.5 + 0.5)
@@ -406,7 +406,7 @@ gameOfLifeTake2 = vec4 (v, v, v, 1)
 
         wasAlive = val `gt` 0
           where
-            val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
         rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
         rule3 = negate wasAlive * numAlive `eq` 3
@@ -414,7 +414,7 @@ gameOfLifeTake2 = vec4 (v, v, v, 1)
 gameOfLifeTake3 :: Vec4
 gameOfLifeTake3 = vec4 (v, v, v, 1)
   where
-    res = copy $ floor_ $(!X) resolution /2
+    res = copy $ floor_ $x_ resolution /2
 
     duv = downsample res uvN
 
@@ -425,7 +425,7 @@ gameOfLifeTake3 = vec4 (v, v, v, 1)
                             , duv `geq` mini
                             ]
 
-    v = (select drawWithMouse 1 $ select alive 1 0)
+    v = (sel drawWithMouse 1 $ sel alive 1 0)
       where
         alive = sum [rule1, rule3]
 
@@ -437,7 +437,7 @@ gameOfLifeTake3 = vec4 (v, v, v, 1)
         numAlive :: Vec1
         numAlive = sum $ map getVal neighbors
           where
-            getVal offset =(!X) $ texture2D backBuffer
+            getVal offset =x_ $ texture2D backBuffer
               $ id             ( uvN
                                  & (\x -> (res * x + vec2 offset) / res)
                                  & (\x -> x * 0.5 + 0.5)
@@ -445,7 +445,7 @@ gameOfLifeTake3 = vec4 (v, v, v, 1)
 
         wasAlive = val `gt` 0
           where
-            val =(!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val =x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
         rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
         rule3 = negate wasAlive * numAlive `eq` 3
@@ -454,19 +454,19 @@ gameOfLifeTake3 = vec4 (v, v, v, 1)
 sigmoid :: Vec1 -> Vec1
 sigmoid x = recip (1 + exp (negate x))
 
-selectSmooth :: Vec1 -> Vec1 -> Vec1 -> Vec1
-selectSmooth choice bw x = sigmoid (x - choice) * sigmoid (negate x - choice)
+selSmooth :: Vec1 -> Vec1 -> Vec1 -> Vec1
+selSmooth choice bw x = sigmoid (x - choice) * sigmoid (negate x - choice)
 
-testSelectSmooth :: Vec4
-testSelectSmooth = vec4 (v, v, v, 1)
+testSelSmooth :: Vec4
+testSelSmooth = vec4 (v, v, v, 1)
   where
-    -- v = selectSmooth 0.01 1 ((!Y) uv)
-    v = sigmoid ((!Y) uvN * 10)
+    -- v = selSmooth 0.01 1 (y_ uv)
+    v = sigmoid (y_ uvN * 10)
 
 testDotProduct :: Vec4
 testDotProduct = vec4 (v, v, v, 1) * vec4 (0.5, 0.2, 1, 1) * 2
   where
-    circle r uv = select inside 1 0
+    circle r uv = sel inside 1 0
       where
         inside = len uv `lt` r
 
@@ -497,8 +497,8 @@ sdf0 = vec4 (color, color, color, 1)
     right = vec3 (1, 0, 0)
     up = vec3 (0, 1, 0)
 
-    u =(!X) uvN
-    v = (!Y) uvN
+    u =x_ uvN
+    v = y_ uvN
 
     ro = u *^ right + v *^ up -- we embed our textures into 3-space
     rd = eye
@@ -514,7 +514,7 @@ sdf0 = vec4 (color, color, color, 1)
         fn (t, c) = (t + d, c')
           where
             d = len ((ro + t *^ rd) - vec3 (mouse, 0)) - 0.1
-            c' = select (d `lt` 0.1) 1 0
+            c' = sel (d `lt` 0.1) 1 0
             -- TODO: break!
 
     color = rayMarch 2
@@ -527,8 +527,8 @@ sdf1 = vec4 (color, color, color, 1)
     right = vec3 (1, 0, 0)
     up = vec3 (0, 1, 0)
 
-    u =(!X) uvN
-    v = (!Y) uvN
+    u =x_ uvN
+    v = y_ uvN
 
     ro = u *^ right + v *^ up -- we embed our textures into 3-space
     rd = eye
@@ -544,7 +544,7 @@ sdf1 = vec4 (color, color, color, 1)
         fn (t, c) = (t + d, c')
           where
             d = len ((ro + t *^ rd) - vec3 (mouse, 0)) - 0.1
-            c' = select (d `lt` 0.1) 1 0
+            c' = sel (d `lt` 0.1) 1 0
 
     color = rayMarch 7
 
@@ -559,8 +559,8 @@ bench i = vec4 (color, color, color, 1)
     right = vec3 (1, 0, 0)
     up = vec3 (0, 1, 0)
 
-    u =(!X) uvN
-    v = (!Y) uvN
+    u =x_ uvN
+    v = y_ uvN
 
     ro = u *^ right + v *^ up -- we embed our textures into 3-space
     rd = eye
@@ -576,7 +576,7 @@ bench i = vec4 (color, color, color, 1)
         fn (t, c) = (t + d, c')
           where
             d = len ((ro + t *^ rd) - vec3 (mouse, 0)) - 0.1
-            c' = select (d `lt` 0.1) 1 0
+            c' = sel (d `lt` 0.1) 1 0
 
     color = rayMarch i
 
@@ -586,17 +586,11 @@ red = vec3 (1, 0, 0)
 green :: Vec3
 green = vec3 (0, 1, 0)
 
-black :: Vec3
-black = vec3 (0, 0, 0)
-
-white :: Vec3
-white = vec3 (1, 1, 1)
-
 -- TODO: implement monoidal append
 
 
 square :: Vec2 -> Vec4
-square v = select (len(uvN - v) `lt` (copy $ audio!Z * 0.2)) (vec4 (color, 0.99)) (vec4(0, 0, 0, 0))
+square v = sel (len(uvN - v) `lt` (copy $ z_ audio * 0.2)) (vec4 (color, 0.99)) (vec4(0, 0, 0, 0))
   where
     color = mix (sin time * 0.5 + 0.5) green red
 
@@ -608,10 +602,10 @@ over x y = mix (a) x' y'
   where
     x' = clamp 0 1 x
     y' = clamp 0 1 y
-    a = 1 - x'!W
+    a = 1 - w_ x'
 
 opacity :: Vec1 -> Vec4 -> Vec4
-opacity f x = vec4 (x!X, x!Y, x!Z, f)
+opacity f x = vec4 (xyz_ x, f)
 
 field :: Integer -> [Vec2]
 field i = [vec2 (fromInteger x,fromInteger y) | x <- rng, y <- rng]
@@ -644,7 +638,7 @@ testNewVer1 = color
     bb = texture2D backBuffer (f uvN)
     f = id
       >>>(^*(0.9))
-      >>>(\x -> vec2 (abs (x!X), (x!Y)))
+      >>>(\x -> vec2 (abs (x_ x), y_ x))
       >>>(rot (time * 0.1))
       >>>(*0.5) >>>(+0.5)
 
@@ -658,4 +652,4 @@ testNewVer1 = color
     shman n = (*n) >>> sin >>> (/n)
 
 
-main = putStrLn $ toGLSL testNewVer1
+output = toProgram testNewVer1

@@ -9,44 +9,44 @@ import Data.Function
 import Control.Arrow
 
 rot :: Vec1 -> Vec2 -> Vec2
-rot phi a = vec2 ( cos phi * ((!X) a)
-                   + sin phi * ((!Y) a)
-                 , (-1) * sin phi * ((!X) a)
-                   + cos phi * ((!Y) a)
+rot phi a = vec2 ( cos phi * (x_ a)
+                   + sin phi * (y_ a)
+                 , (-1) * sin phi * (x_ a)
+                   + cos phi * (y_ a)
                  )
 
 sigmoid :: Vec1 -> Vec1
 sigmoid x = recip (1 + exp (negate x))
 
-phi uv' = atan ((!Y) uv'/ (!X) uv')
+phi uv' = atan (y_ uv'/ x_ uv')
 
 
 
 
 
+myColor1 :: Vec4
 myColor1 = (0.1 *^ vec4 (r, g, b, 1) + bb)
   where
-    r = v + (!W) audio
-    g = v * (!Y) audio
-    b = v * (!Z) audio
+    r = v + w_ audio
+    g = v * y_ audio
+    b = v * z_ audio
 
-    v = cos (len uvN * (!X) audio * 100 + time)
-      + 0.9 *^ tan ((!X) uvN * (!X) audio * 10 + time)
-    bb = texture2D backBuffer ((rot ((!Z) audio * 0.5) (uvN * 0.95)) * 0.5 + 0.5)
+    v = cos (len uvN * x_ audio * 100 + time)
+      + 0.9 *^ tan (x_ uvN * x_ audio * 10 + time)
+    bb = texture2D backBuffer ((rot (z_ audio * 0.5) (uvN * 0.95)) * 0.5 + 0.5)
 
 
 
+myColor2 :: Vec4
 myColor2 = (0.1 *^ vec4 (r, g, b, 1) + bb)
   where
-    r = v + (!W) audio
-    g = v * (!Y) audio
-    b = v * (!Z) audio
+    r = v + w_ audio
+    g = v * y_ audio
+    b = v * z_ audio
 
-    v = cos (len uvN * (!X) audio * 100 + time)
-      + 0.9 *^ sin ((!X) uvN * (!X) audio * 10 + time)
-    bb = texture2D backBuffer ((rot ((!Z) audio * 0.5) (uvN * 0.95)) * 0.5 + 0.5)
-
-
+    v = cos (len uvN * x_ audio * 100 + time)
+      + 0.9 *^ sin (x_ uvN * x_ audio * 10 + time)
+    bb = texture2D backBuffer ((rot (z_ audio * 0.5) (uvN * 0.95)) * 0.5 + 0.5)
 
 
 
@@ -67,28 +67,30 @@ myColor2 = (0.1 *^ vec4 (r, g, b, 1) + bb)
 
 
 
+
+myColor :: Vec4
 myColor = (0.1 *^ vec4 (r, g, b, 1) + bb)
   where
-    r = v + (!W) audio
-    g = v * (!Y) audio
-    b = v * (!Z) audio
+    r = v + w_ audio
+    g = v * y_ audio
+    b = v * z_ audio
 
-    v = v' * (!Z) audio
-    v' =recip $ tan  ((!Y) uvN * (!X) audio * 10 + tim)
-      + 0.9 *^ sin ((!X) bb  * (!X) audio * 10 +tim )
-    bb = texture2D backBuffer ((rot ((!Z) audio) ((((!Y) audio *^ uvN)) * 0.9)) * 0.5 + 0.5)
+    v = v' * z_ audio
+    v' =recip $ tan  (y_ uvN * x_ audio * 10 + tim)
+      + 0.9 *^ sin (x_ bb  * x_ audio * 10 +tim )
+    bb = texture2D backBuffer ((rot (z_ audio) (((y_ audio *^ uvN)) * 0.9)) * 0.5 + 0.5)
     tim = time * 0.1
 
 
 myColor3 = 0.1 *^ vec4 (r,g ,b, 1) + bb
   where
-    r = v' * (!W) audio
-    g = v' * (!Z) audio
-    b = v' * (!Y) audio
+    r = v' * w_ audio
+    g = v' * z_ audio
+    b = v' * y_ audio
     v' = product $ map v [0..10]
-    v x = tan (((!X) audio + phi uvN') + time * 0.01 + (!W) audio)
+    v x = tan ((x_ audio + phi uvN') + time * 0.01 + w_ audio)
       where
-        uvN' = rot time ((!Y) audio *^ vec2 ((!Y) uvN , (!X) uvN) + ((!Z) audio *^ 0.2) * fromInteger (x))
+        uvN' = rot time (y_ audio *^ vec2 (y_ uvN , x_ uvN) + (z_ audio *^ 0.2) * fromInteger (x))
     bb = texture2D backBuffer (0.5 * (rot tim (uvN * 1.1)) + 0.5)
     tim = time * 0.1
 
@@ -106,14 +108,14 @@ myColor3 = 0.1 *^ vec4 (r,g ,b, 1) + bb
 
 
 mirror :: Vec2 -> Vec2
-mirror v = vec2 (abs $ (!X) v, (!Y) v)
+mirror v = vec2 (abs $ x_ v, y_ v)
 
 myColor4 = 0.01 *^ vec4 (r,g ,b, 1) + bb
   where
-    r = v * (!X) uvN
-    g = v * (!Y) uvN
+    r = v * x_ uvN
+    g = v * y_ uvN
     b = v
-    v = len (uvN - mouse) * (10 * (!X) audio)
+    v = len (uvN - mouse) * (10 * x_ audio)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
@@ -121,10 +123,10 @@ myColor4 = 0.01 *^ vec4 (r,g ,b, 1) + bb
 
 myColor5 = 0.01 *^ vec4 (r,g ,b, 1) + bb
   where
-    r = v * (!X) uvN
-    g = v * (!Y) uvN
+    r = v * x_ uvN
+    g = v * y_ uvN
     b = v
-    v = len (uvN - mouse) * (100 * (!X) audio)
+    v = len (uvN - mouse) * (100 * x_ audio)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
@@ -133,8 +135,8 @@ myColor5 = 0.01 *^ vec4 (r,g ,b, 1) + bb
 
 spaceKandinsky = 0.01 *^ vec4 (r,g ,b, 1) + 1.01 *^ bb
   where
-    r = v * fract ((!X) uvN * 100)
-    g = v * fract ((!Y) uvN * 100)
+    r = v * fract (x_ uvN * 100)
+    g = v * fract (y_ uvN * 100)
     b = v
     v = len (uvN - mouse) * 10
       & \x -> 10 * sin x
@@ -146,11 +148,11 @@ spaceKandinsky = 0.01 *^ vec4 (r,g ,b, 1) + 1.01 *^ bb
 dashiki= 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
     mul = 100
-    r = v * fract ((!X) uvN * mul)
-    g = v * fract ((!Y) uvN * mul)
+    r = v * fract (x_ uvN * mul)
+    g = v * fract (y_ uvN * mul)
     b = v
     tim = time/ 10e1
-    v = len (uvN - mouse + vec2 (sin tim, cos tim)) * (!Y) mouse
+    v = len (uvN - mouse + vec2 (sin tim, cos tim)) * y_ mouse
       & \x -> 10 * sin x
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
@@ -167,7 +169,7 @@ satanic = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
     b = v
     tim = time/ 10e1
     v = product $ map fn [0..1]
-    fn n = (!Y) (uvN - mouse + vec2(sin tim, cos tim))
+    fn n = y_ (uvN - mouse + vec2(sin tim, cos tim))
       & (\x -> 10 * x + (fromInteger n))
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
@@ -179,88 +181,80 @@ satanic = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
 
 cottonCandy = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    g = v * (!Y) audio * (!X) uvN
-    b = v * (!Z) audio * fract (len (uvN * 100))
-    r = v * (!W) audio * cos (len (uvN * 100))
+    g = v * y_ audio * x_ uvN
+    b = v * z_ audio * fract (len (uvN * 100))
+    r = v * w_ audio * cos (len (uvN * 100))
     tim = time/ 10e1
     v = product $ map fn [0..1]
-    fn n = (!Y) (vec2 ((!X) uvN, (-1) * (!Y) uvN))
+    fn n = y_ (vec2 (x_ uvN, (-1) * y_ uvN))
       & (\x -> 10 * x + (fromInteger n) * 5)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn = id
           . mirror
-          . rot ( (-1 ) * pi/ 6 * (!W) audio)
-          . (^*((!X) audio & linexp (0, 1, 1, 0.9)))
+          . rot ( (-1 ) * pi/ 6 * w_ audio)
+          . (^*(x_ audio & linexp (0, 1, 1, 0.9)))
 
 cottonCandy2 = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    b = 10 -  v * (!Y) audio * (!X) uvN
-    r = 1 - v * (!Z) audio * fract (len (uvN * 100))
-    g = 0.5 + v * (!W) audio * cos (len (uvN * 100))
+    b = 10 -  v * y_ audio * x_ uvN
+    r = 1 - v * z_ audio * fract (len (uvN * 100))
+    g = 0.5 + v * w_ audio * cos (len (uvN * 100))
     tim = time/ 10e1
     v = product $ map fn [0..1]
-    fn n = (!Y) (vec2 ((!X) uvN, (-1) * (!Y) uvN))
+    fn n = y_ (vec2 (x_ uvN, (-1) * y_ uvN))
       & (\x -> 10 * x + (fromInteger n) * 5)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn = id
           . mirror
-          . rot ( (-1 ) * pi/ 6 * (!W) audio)
-          . (^*((!X) audio & linexp (0, 1, 1, 0.9)))
+          . rot ( (-1 ) * pi/ 6 * w_ audio)
+          . (^*(x_ audio & linexp (0, 1, 1, 0.9)))
 
 cottonCandy3 = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    b = 10 -  v * (!Y) audio * (!X) uvN
-    r = v * (!Z) audio * fract (len (uvN * 100))
-    g = v * (!W) audio * cos (len (uvN * 100))
+    b = 10 -  v * y_ audio * x_ uvN
+    r = v * z_ audio * fract (len (uvN * 100))
+    g = v * w_ audio * cos (len (uvN * 100))
     tim = time/ 10e1
     v = product $ map fn [0..1]
-    fn n = (!Y) (vec2 ((!X) uvN, (!Y) uvN))
+    fn n = y_ (vec2 (x_ uvN, y_ uvN))
       & (\x -> 10 * x + (fromInteger n) * 5)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn = id
           . mirror
-          . rot (pi/ 6 * (!W) audio)
-          . (^*((!X) audio & linexp (0, 1, 1, 0.9)))
+          . rot (pi/ 6 * w_ audio)
+          . (^*(x_ audio & linexp (0, 1, 1, 0.9)))
 
 cottonCandy4 = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    r = v * (!X) uvN
-    g = v * (!Y) uvN
+    r = v * x_ uvN
+    g = v * y_ uvN
     b = v
-    v = tan $ len (uvN - mouse) * (!X) audio * 100
+    v = tan $ len (uvN - mouse) * x_ audio * 100
     bb = texture2D backBuffer (0.5 * fn (uvN) + 0.5)
       where
         fn = id
           . mirror
           . rot (time * 0.001)
-          . (^*((!X) audio & linexp (0, 1, 1, 0.9)))
-
-white :: Vec4
-white = vec4 (1, 1, 1, 1)
-
-black :: Vec4
-black = vec4 (0, 0, 0, 1)
-
-test = select true black white
+          . (^*(x_ audio & linexp (0, 1, 1, 0.9)))
 
 -- main = putStrLn . toGLSL $ gameOfLife
 -- gameOfLife = vec4 (v, v, v, 1)
 --   where
---     v = select false 1 0
+--     v = sel false 1 0
 
 candyRoad = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
   where
-    b = 1 -  v * (!Y) audio * (!X) uvN
-    r = v * (!Z) audio * fract (len (uvN * 100))
-    g = v * (!W) audio * cos (len (uvN * 100))
+    b = 1 -  v * y_ audio * x_ uvN
+    r = v * z_ audio * fract (len (uvN * 100))
+    g = v * w_ audio * cos (len (uvN * 100))
     v = product $ map fn [0..10]
-    fn n = (!Y) (vec2 ((!X) uvN, (!Y) uvN))
+    fn n = y_ (vec2 (x_ uvN, y_ uvN))
       & (\x -> 10 * x + (fromInteger n) * 10)
       & tan
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
@@ -268,39 +262,39 @@ candyRoad = 0.01 *^ vec4 (r,g ,b, 1) + 1.1 *^ bb
         fn = id
           . (+vec2(0, -0.33))
           . mirror
-          . rot (0.3* (!W) audio* m)
-          . (^*((!X) audio & linexp (0, 1, 1.1, 0.9)))
+          . rot (0.3* w_ audio* m)
+          . (^*(x_ audio & linexp (0, 1, 1.1, 0.9)))
           . (+vec2(0, 0.33))
     m = sin(time) & linexp (-1, 1, 0.5, 1)
 
 candyRoad2 = 0.01 *^ vec4 (r v,g v ,b v, 1) + 0.99 *^ bb
   where
     r :: Vec1 -> Vec1
-    r v = v - tan (v * 0.001 + sin(tim + (!Y) uvN)) ** 0.1
+    r v = v - tan (v * 0.001 + sin(tim + y_ uvN)) ** 0.1
 
     g :: Vec1 -> Vec1
-    g v = v - tan (v * 0.001 + sin(tim + (!X) uvN)) ** 0.3
+    g v = v - tan (v * 0.001 + sin(tim + x_ uvN)) ** 0.3
 
     b :: Vec1 -> Vec1
     b v = v - tan (v * 0.001 + sin(tim + len uvN)) ** 0.4
 
     tim = time * 0.01
 
-    v = ((!X) audio & linexp (0, 1, 1, 100)) - len (uvN - vec2 (0.5 * (!Y) audio, -0.333)) * (!Y) audio
-      & (*((!X) audio & linexp (0, 1, 0.001, 1)))
+    v = (x_ audio & linexp (0, 1, 1, 100)) - len (uvN - vec2 (0.5 * y_ audio, -0.333)) * y_ audio
+      & (*(x_ audio & linexp (0, 1, 0.001, 1)))
       & (tan)
       & (cos)
-      & (+((!W) audio * (!Y) uvN))
+      & (+(w_ audio * y_ uvN))
       & (fract)
-      & (*((!Y) audio & linexp (0, 1, 1, 10)))
+      & (*(y_ audio & linexp (0, 1, 1, 10)))
       & (tan)
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn = id
           . (+vec2(0, -0.33))
           . mirror
-          . rot (0.3 * (!W) audio* m)
-          . (^*((!X) audio & linexp (0, 1, 1.1, 0.9)))
+          . rot (0.3 * w_ audio* m)
+          . (^*(x_ audio & linexp (0, 1, 1.1, 0.9)))
           . (+vec2(0, 0.33))
     m = sin(time) & linexp (-1, 1, 0.5, 1)
 
@@ -309,13 +303,13 @@ candyRoad3 = 0.01 *^ vec4 (r v, g v , b v, 1) + 0.99 *^ bb
   -- & clamp 0 1
   where
     r :: Vec1 -> Vec1
-    r v = (!Y) audio * cos((!X) audio * 10 * sin(tim + (!Y) uvN * 100)) ** 0.5
+    r v = y_ audio * cos(x_ audio * 10 * sin(tim + y_ uvN * 100)) ** 0.5
 
     g :: Vec1 -> Vec1
-    g v = (!Y) audio * cos((!X) audio* 10 * sin(tim + (!X) uvN * 100)) ** 0.1
+    g v = y_ audio * cos(x_ audio* 10 * sin(tim + x_ uvN * 100)) ** 0.1
 
     b :: Vec1 -> Vec1
-    b v = (!Y) audio * cos((!X) audio * 10 * sin(tim + (!X) uvN * 100)) **2
+    b v = y_ audio * cos(x_ audio * 10 * sin(tim + x_ uvN * 100)) **2
 
     v = 1
 
@@ -324,91 +318,91 @@ candyRoad3 = 0.01 *^ vec4 (r v, g v , b v, 1) + 0.99 *^ bb
       where
         fn :: Vec2 -> Vec2
         fn = id
-          . rot ((-0.2) * (!W) audio* m)
+          . rot ((-0.2) * w_ audio* m)
           . mirror
-          . rot ((-0.2) * (!W) audio* m)
-          . (^*((!X) audio & linexp (0, 1, 1.1, 0.85)))
+          . rot ((-0.2) * w_ audio* m)
+          . (^*(x_ audio & linexp (0, 1, 1.1, 0.85)))
           . (+vec2 (-k, k))
     m = sin(time) & linexp (-1, 1, 0.5, 1)
-    k = (!X) audio & linexp (0, 1, 0.000001, 0.001)
+    k = x_ audio & linexp (0, 1, 0.000001, 0.001)
 
 candyRoad4 = 0.01 *^ vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
   & (clamp 0 1)
   where
     r :: Vec1 -> Vec1
-    r v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + (!X) uvN * 100)) ** 10
+    r v = v *y_ audio * cos(x_ audio * 10 * sin(tim + x_ uvN * 100)) ** 10
 
     g :: Vec1 -> Vec1
-    g v = v *(!Y) audio * cos((!X) audio* 10 * sin(tim + (!X) uvN * 100)) ** 1
+    g v = v *y_ audio * cos(x_ audio* 10 * sin(tim + x_ uvN * 100)) ** 1
 
     b :: Vec1 -> Vec1
-    b v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + (!X) uvN * 100)) **0.1
+    b v = v *y_ audio * cos(x_ audio * 10 * sin(tim + x_ uvN * 100)) **0.1
 
     tim = time * 0.01
 
-    v = len (uvN - vec2 (0.1, 0)) * (!Z) audio
-      & (*((!X) audio & linexp (0, 1, 1, 10e4)))
+    v = len (uvN - vec2 (0.1, 0)) * z_ audio
+      & (*(x_ audio & linexp (0, 1, 1, 10e4)))
       & tan
 
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn :: Vec2 -> Vec2
         fn = id
-          . rot ((-0.02) * ((!W) audio+ (!X) audio)* m)
-          . (^*(((!X) audio & linexp (0, 1, 1.25, 0.81))))
+          . rot ((-0.02) * (w_ audio+ x_ audio)* m)
+          . (^*((x_ audio & linexp (0, 1, 1.25, 0.81))))
           . mirror
-          . rot ((-0.2) * (!W) audio* m)
+          . rot ((-0.2) * w_ audio* m)
           . (+vec2 (-k, 0))
     m = sin(time) & linexp (-1, 1, 0.5, 1)
-    k = (!Y) audio & linexp (0, 1, 0.0000001, 0.001)
+    k = y_ audio & linexp (0, 1, 0.0000001, 0.001)
 
 candyRoad5 = 0.01 *^ vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
   & (clamp 0 1)
   where
-    r v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + 10 *(!Y) uvN)) ** 1
+    r v = v *y_ audio * cos(x_ audio * 10 * sin(tim + 10 *y_ uvN)) ** 1
 
-    g v = v *(!Y) audio * cos((!X) audio* 10 * sin(tim + 10 *(!Y) uvN)) ** 1
+    g v = v *y_ audio * cos(x_ audio* 10 * sin(tim + 10 *y_ uvN)) ** 1
 
-    b v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + 10 *(!Y) uvN)) ** 1
+    b v = v *y_ audio * cos(x_ audio * 10 * sin(tim + 10 *y_ uvN)) ** 1
 
     tim = time * 0.01
 
-    v = len (uvN - vec2 (0.1, 0)) * (!Z) audio
-      & (*((!X) audio & linexp (0, 1, 1, 10e4)))
+    v = len (uvN - vec2 (0.1, 0)) * z_ audio
+      & (*(x_ audio & linexp (0, 1, 1, 10e4)))
       & tan
 
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
       where
         fn :: Vec2 -> Vec2
         fn = id
-          . rot ((-0.02) * ((!W) audio+ (!X) audio)* m)
-          . (^*(((!X) audio & linexp (0, 1, 1.25, 0.81))))
+          . rot ((-0.02) * (w_ audio+ x_ audio)* m)
+          . (^*((x_ audio & linexp (0, 1, 1.25, 0.81))))
           . mirror
-          . rot ((-0.2) * (!W) audio* m)
+          . rot ((-0.2) * w_ audio* m)
           . (+vec2 (-k, 0))
           . (**0.999)
           . (sin)
 
     m = sin(time) & linexp (-1, 1, 0.5, 1)
-    k = (!Y) audio & linexp (0, 1, 0.0000001, 0.001)
+    k = y_ audio & linexp (0, 1, 0.0000001, 0.001)
 -- TODO: make flash
 
 candyRoad6 = 0.01 *^ vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
   & (clamp 0 1)
   where
     r :: Vec1 -> Vec1
-    r v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + (!X) uvN * 100)) ** 10
+    r v = v *y_ audio * cos(x_ audio * 10 * sin(tim + x_ uvN * 100)) ** 10
 
     g :: Vec1 -> Vec1
-    g v = v *(!Y) audio * cos((!X) audio* 10 * sin(tim + (!X) uvN * 100)) ** 1
+    g v = v *y_ audio * cos(x_ audio* 10 * sin(tim + x_ uvN * 100)) ** 1
 
     b :: Vec1 -> Vec1
-    b v = v *(!Y) audio * cos((!X) audio * 10 * sin(tim + (!X) uvN * 100)) **0.1
+    b v = v *y_ audio * cos(x_ audio * 10 * sin(tim + x_ uvN * 100)) **0.1
 
     tim = time * 0.01
 
-    v = len (uvN - vec2 (0.1, 0)) * (!Z) audio
-      & (*((!X) audio & linexp (0, 1, 1, 10e4)))
+    v = len (uvN - vec2 (0.1, 0)) * z_ audio
+      & (*(x_ audio & linexp (0, 1, 1, 10e4)))
       & tan
 
     bb = texture2D backBuffer (0.5 * fn uvN + 0.5)
@@ -416,26 +410,26 @@ candyRoad6 = 0.01 *^ vec4 (r v,g v ,b v, 1) + 0.99 *^ (bb)
         fn :: Vec2 -> Vec2
         fn = id
           . (+vec2 (0, negate disp))
-          . rot ((-0.01) * ((!W) audio)* m)
-          . (^*(((!X) audio & linexp (0, 1, 1.25, 0.81))))
+          . rot ((-0.01) * (w_ audio)* m)
+          . (^*((x_ audio & linexp (0, 1, 1.25, 0.81))))
           . mirror
-          . rot ((-0.2) * (!W) audio)
+          . rot ((-0.2) * w_ audio)
           . (+vec2 (0, disp))
           . (+vec2 (-k, 0))
     disp = 0.25
     m = sin(time) & linexp (-1, 1, 0.5, 1)
-    k = (!Y) audio & linexp (0, 1, 0.0000001, 0.001)
+    k = y_ audio & linexp (0, 1, 0.0000001, 0.001)
 
 audioGraph1 :: Vec4
 audioGraph1 = v
   where
     resolution = 100
-    isDrawn = abs ((!X) uvN  -  (1 / resolution)) `lt` (1/resolution)
+    isDrawn = abs (x_ uvN  -  (1 / resolution)) `lt` (1/resolution)
 
-    v = select isDrawn fresh old
+    v = sel isDrawn fresh old
     fresh = vec4 (v, v, v, 1)
       where
-        v = (!Z) audio * (!Y) uv
+        v = z_ audio * y_ uv
           & (*10)
           & (tan)
         mul = 8
@@ -443,23 +437,23 @@ audioGraph1 = v
     old = texture2D backBuffer pos
       where
         pos = uvN
-          & (\x -> vec2 (abs ((!X) x), (!Y) x))
-          & (\x -> vec2 ((!X) x, (!Y) x * ((!X) audio & linexp (0, 1, 0.8, 1.1))))
-          & (\x -> x - vec2 (1/resolution * signum ((!X) uvN), 0))
-          & (rot ((!Y) mouse * 0.1))
+          & (\x -> vec2 (abs (x_ x), y_ x))
+          & (\x -> vec2 (x_ x, y_ x * (x_ audio & linexp (0, 1, 0.8, 1.1))))
+          & (\x -> x - vec2 (1/resolution * signum (x_ uvN), 0))
+          & (rot (y_ mouse * 0.1))
           & (\x -> x * 0.5 + 0.5)
 
 audioGraph2 :: Vec4
 audioGraph2 = v
   where
     resolution = 100
-    isDrawn = abs ((!X) uvN  -  (1 / resolution)) `lt` (1/resolution)
+    isDrawn = abs (x_ uvN  -  (1 / resolution)) `lt` (1/resolution)
 
-    v = select isDrawn fresh old
+    v = sel isDrawn fresh old
     fresh = vec4 (v, v, v, 1)
       where
 
-        v = (!Z) audio * (!Y) uv
+        v = z_ audio * y_ uv
           & (*4)
           & fract
         mul = 8
@@ -467,10 +461,10 @@ audioGraph2 = v
     old = texture2D backBuffer pos
       where
         pos = uvN
-          & (\x -> vec2 (abs ((!X) x), ((!Y) x)))
-          & (\x -> vec2 ((!X) x, (!Y) x * ((!X) audio & linexp (0, 1, 0.8, 1.1))))
-          & (\x -> x - vec2 (1/resolution * signum ((!X) uvN), 0))
-          & (rot ((!X) audio * (1 * 0.05)))
+          & (\x -> vec2 (abs(x_ x), abs (y_ x)))
+          & (\x -> vec2 (x_ x, y_ x * (x_ audio & linexp (0, 1, 0.8, 1.1))))
+          & (\x -> x - vec2 (1/resolution * signum (x_ uvN), 0))
+          & (rot (x_ audio * (1 * 0.05)))
           & (\x -> x * 0.5 + 0.5)
 
 gameOfLifeAudio :: Vec4
@@ -480,7 +474,7 @@ gameOfLifeAudio = vec4 (v, v, v, 1) * vec4 (c, c, c, 1)
     downsample :: (Veccable a) => Vec a -> Vec a -> Vec a
     downsample a x = floor_ (a*x) / a
 
-    res = copy $ floor_ $ (!X) resolution /2
+    res = copy $ floor_ $ x_ resolution /2
 
     duv = downsample res uvN
 
@@ -489,13 +483,13 @@ gameOfLifeAudio = vec4 (v, v, v, 1) * vec4 (c, c, c, 1)
     maxi= downsample res $ shift + size/res
     mini= downsample res $ shift + (negate $ size/res)
 
-    size = vec2 ((!Z) audio - 0.5, (!W) audio) * 500
+    size = vec2 (z_ audio - 0.5, w_ audio) * 500
 
     drawWithMouse = product [ duv `lt` maxi
                             , duv `geq` mini
                             ]
 
-    v = (select drawWithMouse 1 $ select alive 1 0)
+    v = (sel drawWithMouse 1 $ sel alive 1 0)
       where
         alive = sum [rule1, rule3]
 
@@ -507,7 +501,7 @@ gameOfLifeAudio = vec4 (v, v, v, 1) * vec4 (c, c, c, 1)
         numAlive :: Vec1
         numAlive = sum $ map getVal neighbors
           where
-            getVal offset = (!Z) $ texture2D backBuffer
+            getVal offset = z_ $ texture2D backBuffer
               $ id             ( uvN
                                  & (\x -> (res * x + vec2 offset) / res)
                                  & (\x -> x * 0.5 + 0.5)
@@ -515,7 +509,7 @@ gameOfLifeAudio = vec4 (v, v, v, 1) * vec4 (c, c, c, 1)
 
         wasAlive = val `gt` 0
           where
-            val = (!X) $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
+            val = x_ $ texture2D backBuffer $ (uvN * 0.5 + 0.5)
 
         rule1 = wasAlive * ((numAlive `eq` 2) + (numAlive `eq` 3))
         rule3 = negate wasAlive * numAlive `eq` 3
@@ -523,11 +517,11 @@ gameOfLifeAudio = vec4 (v, v, v, 1) * vec4 (c, c, c, 1)
 rclogo1 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
       (texture2D channel1 (f uvN)) (vec4 (1, 1, 1, 1))
     f = id
       >>> (\x -> x - mouse)
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
       >>> (^*(sin time + 2))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -536,47 +530,47 @@ rclogo1 = logo
 rclogo2 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!Z) audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (z_ audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
     f = id
       -- >>> (\x -> x - mouse)
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*(2 * exp ((!X) audio) + exp ((!W) audio)))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(2 * exp (x_ audio) + exp (w_ audio)))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + (!Z) audio + 0.1 * time, (!Y) v + (!W) audio + 0.1 * time))
+      >>> (\v -> vec2 (x_ v + z_ audio + 0.1 * time, y_ v + w_ audio + 0.1 * time))
       >>> (fract)
-      >>> (^*(4 * (!Y) audio))
+      >>> (^*(4 * y_ audio))
     bb = texture2D backBuffer (g uvN)
     g = id
-      >>> (rot (0.03 * (!Y) audio))
+      >>> (rot (0.03 * y_ audio))
       -- >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!X) audio + 0.1))
+      >>> (\x -> x ^* (x_ audio + 0.1))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 (abs $ (!X) v, abs$ (!Y) v))
+      >>> (\v -> vec2 (abs $ x_ v, abs$ y_ v))
       >>> (fract)
 
 rclogo3 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!Z) audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (z_ audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
     f = id
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*(1 * exp ((!X) audio) + exp ((!W) audio)))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(1 * exp (x_ audio) + exp (w_ audio)))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + speed * time, (!Y) v + 0.5))
-      -- >>> (\v -> vec2 ((!X) v + (!Z) audio + 0.1 * time, (!Y) v + (!W) audio + 0.1 * time))
+      >>> (\v -> vec2 (x_ v + speed * time, y_ v + 0.5))
+      -- >>> (\v -> vec2 (x_ v + z_ audio + 0.1 * time, y_ v + w_ audio + 0.1 * time))
       >>> (fract)
-      >>> (^*(4 * (!Y) audio))
+      >>> (^*(4 * y_ audio))
     speed = 0.1
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (^*mul)
-      >>> (\v -> vec2 (abs $  (!X) v, abs$ (!Y) v))
+      >>> (\v -> vec2 (abs $  x_ v, abs$ y_ v))
       >>> (^/mul)
-      >>> (rot (0.03 * (!Y) audio))
+      >>> (rot (0.03 * y_ audio))
       >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!X) audio + 0.1))
+      >>> (\x -> x ^* (x_ audio + 0.1))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
     mul = 20
@@ -584,25 +578,25 @@ rclogo3 = logo
 rclogo4 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!Z) audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (z_ audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
     f = id
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*(tan $ (!X) audio))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(tan $ x_ audio))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + 0.25, (!Y) v + speed * time))
+      >>> (\v -> vec2 (x_ v + 0.25, y_ v + speed * time))
       >>> (fract)
       >>> (^*(2))
-      -- >>> (^*(3 * (!Y) audio))
+      -- >>> (^*(3 * y_ audio))
     speed = 0.1
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (^*mul)
-      >>> (\v -> vec2 (abs $  (!X) v, abs$ (!Y) v))
+      >>> (\v -> vec2 (abs $  x_ v, abs$ y_ v))
       >>> (^/mul)
-      >>> (rot (0.05 * (!Y) audio))
+      >>> (rot (0.05 * y_ audio))
       >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!X) audio + 0.5))
+      >>> (\x -> x ^* (x_ audio + 0.5))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
     mul = 20
@@ -610,25 +604,25 @@ rclogo4 = logo
 rclogo5 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!Z) audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (z_ audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
     f = id
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*(tan $ exp $ (!X) audio / 5))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(tan $ exp $ x_ audio / 5))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + 0.25, (!Y) v + speed * time))
+      >>> (\v -> vec2 (x_ v + 0.25, y_ v + speed * time))
       >>> (fract)
       >>> (^*(2))
-      -- >>> (^*(3 * (!Y) audio))
+      -- >>> (^*(3 * y_ audio))
     speed = 0.1
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (^*mul)
-      >>> (\v -> vec2 (abs $  (!X) v, abs$ (!Y) v))
+      >>> (\v -> vec2 (abs $  x_ v, abs$ y_ v))
       >>> (^/mul)
-      >>> (rot (0.05 * (!Y) audio))
+      >>> (rot (0.05 * y_ audio))
       >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!Z) audio + 0.5))
+      >>> (\x -> x ^* (z_ audio + 0.5))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
     mul = 20
@@ -636,26 +630,26 @@ rclogo5 = logo
 rclogo6 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!Z) audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (z_ audio + 0.5) (texture2D channel1 (f uvN)) bb) bb
     f = id
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*(tan $ exp $ (!X) audio / 5))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(tan $ exp $ x_ audio / 5))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + 0.25, (!Y) v + speed * time))
+      >>> (\v -> vec2 (x_ v + 0.25, y_ v + speed * time))
       >>> (fract)
       >>> (^*(2))
-      -- >>> (^*(3 * (!Y) audio))
+      -- >>> (^*(3 * y_ audio))
     speed = 0.1
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (^*mul)
-      >>> (\v -> vec2 (abs $  (!X) v, abs $  (!Y) v))
+      >>> (\v -> vec2 (abs $  x_ v, abs $  y_ v))
       >>> (^/mul)
-      >>> (rot (0.05 * (!Y) audio))
+      >>> (rot (0.05 * y_ audio))
       >>> (rot (cos$ len uvN))
       >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!Z) audio + 0.5))
+      >>> (\x -> x ^* (z_ audio + 0.5))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
     mul = 20
@@ -663,26 +657,26 @@ rclogo6 = logo
 rclogo7 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) ((\x -> vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x))bb)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) ((\x -> vec4 (vec3 (z_ x, x_ x, y_ x), w_ x))bb)
     stuff = texture2D channel1 (f uvN)
     f = id
-      >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
-      >>> (^*((!X) audio * 2 * pi/3))
+      >>> (\v -> vec2 (x_ v, negate $ y_ v))
+      >>> (^*(x_ audio * 2 * pi/3))
       >>> (\x -> x * 0.5 + 0.5)
-      >>> (\v -> vec2 ((!X) v + 0.25, (!Y) v + speed * time))
+      >>> (\v -> vec2 (x_ v + 0.25, y_ v + speed * time))
       >>> (fract)
       >>> (^*(2))
-      -- >>> (^*(3 * (!Y) audio))
+      -- >>> (^*(3 * y_ audio))
     speed = 0.1
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (^*mul)
-      >>> (\v -> vec2 (abs $  (!X) v, abs $  (!Y) v))
+      >>> (\v -> vec2 (abs $  x_ v, abs $  y_ v))
       >>> (^/mul)
-      >>> (rot (0.2 * (!Y) audio))
+      >>> (rot (0.2 * y_ audio))
       >>> (\x -> x - mouse)
-      >>> (\x -> x ^* ((!Z) audio + 0.5))
+      >>> (\x -> x ^* (z_ audio + 0.5))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
     mul = 20
@@ -690,14 +684,14 @@ rclogo7 = logo
 rclogo8 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (id bb)
-    -- rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (id bb)
+    -- rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     stuff = texture2D channel1 (ff . f $ uvN)
     f = id
       >>> (\x -> x - mouse)
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
       >>> (*10)
 
     ff = id
@@ -709,23 +703,23 @@ rclogo8 = logo
     bb = texture2D backBuffer (g uvN)
     g = id
       >>> (\x -> x * (1 + 0.1))
-      -- >>> (\x -> vec2 (x & (!X) & abs, x & Y))
-      -- >>> (rot ((!X) audio * (1 * 0.1)))
+      -- >>> (\x -> vec2 (x & x_ & abs, x & Y))
+      -- >>> (rot (x_ audio * (1 * 0.1)))
       >>> (\x -> x * 0.5 + 0.5)
     mul = 20
 
 rclogo9 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade bb)
-    -- rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade bb)
+    -- rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.9
     stuff = texture2D channel1 (f $ uvN)
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x , x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + copy (time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -733,9 +727,9 @@ rclogo9 = logo
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
     g = id
-      >>> (\x -> vec2 (x & (!X)  & negate & abs, x & (!Y) ))
+      >>> (\x -> vec2 (x & x_  & negate & abs, x & y_ ))
       >>> (\x -> x * (1 + 0.1))
-      >>> (rot ((!X) audio * 0.2))
+      >>> (rot (x_ audio * 0.2))
       >>> (\x -> x - mouse)
       >>> (\x -> x * 0.5 + 0.5)
     mul = 20
@@ -743,14 +737,14 @@ rclogo9 = logo
 rclogo10 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.9
     stuff = texture2D channel1 (f $ uvN)
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + copy (time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -758,9 +752,9 @@ rclogo10 = logo
     speed = 0.25
     bb = texture2D backBuffer (g uvN)
     g = id
-      -- >>> (\x -> vec2 (x & (!X)  & negate & abs, x & (!Y) ))
-      >>> (\x -> x ^* (0.4 + (!X) audio))
-      -- >>> (rot ((!X) audio * 0.2))
+      -- >>> (\x -> vec2 (x & x_  & negate & abs, x & y_ ))
+      >>> (\x -> x ^* (0.4 + x_ audio))
+      -- >>> (rot (x_ audio * 0.2))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -771,14 +765,14 @@ rclogo10 = logo
 rclogo11 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (f $ uvN)
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + vec2 (0 + 0.5, time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -786,9 +780,9 @@ rclogo11 = logo
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
     g = id
-      >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & abs))
-      >>> (\x -> x ^* (0.4 + (!X) audio))
-      >>> (rot ((!X) audio * 0.2 + pi))
+      >>> (\x -> vec2 (x & x_  & abs, x & y_  & abs))
+      >>> (\x -> x ^* (0.4 + x_ audio))
+      >>> (rot (x_ audio * 0.2 + pi))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -799,17 +793,17 @@ rclogo11 = logo
 rclogo12 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (f $ uvN) * vec4 (v, v, v, 1)
       where
-        v = (!Y) uvN
-          & (*((!W) audio * 10))
+        v = y_ uvN
+          & (*(w_ audio * 10))
     f = id
-      >>> (\x -> vec2 (x ! X, x ! Y & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, y_ x & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + vec2 (0 + 0.5, time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -817,9 +811,9 @@ rclogo12 = logo
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
     g = id
-      >>> (\x -> vec2 (x ! X  & abs, x ! Y  & abs))
-      >>> (\x -> x ^* (0.4 + (!X) audio))
-      >>> (rot ((!X) audio * 0.2 + pi))
+      >>> (\x -> vec2 (x_ x  & abs, y_ x  & abs))
+      >>> (\x -> x ^* (0.4 + x_ audio))
+      >>> (rot (x_ audio * 0.2 + pi))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -830,19 +824,19 @@ rclogo12 = logo
 rclogo13 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (f $ uvN) * vec4 (v, v, v, 1)
       where
-        v = (!Y) uvN
-          & (*(3 -  3*(!Z) audio))
+        v = y_ uvN
+          & (*(3 -  3*z_ audio))
           & (cos)
-          & (*((!W) audio * 10))
+          & (*(w_ audio * 10))
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + vec2 (0 + 0.5, time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -850,9 +844,9 @@ rclogo13 = logo
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
     g = id
-      -- >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & abs))
-      >>> (\x -> x ^* (0.4 + (!X) audio))
-      -- >>> (rot ((!X) audio * 0.2 + pi))
+      -- >>> (\x -> vec2 (x & x_  & abs, x & y_  & abs))
+      >>> (\x -> x ^* (0.4 + x_ audio))
+      -- >>> (rot (x_ audio * 0.2 + pi))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -863,25 +857,25 @@ rclogo13 = logo
 rclogo14 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (f $ uvN)
       * vec4 (v1, v1, v1, 1)
 
-    v1 = v ((!W) audio * 10)
-    v2 = v ((!Y) audio)
+    v1 = v (w_ audio * 10)
+    v2 = v (y_ audio)
       & clamp 0.5 1
 
     v x= len uvN
-      & (*(3 -  3*(!Y) audio))
+      & (*(3 -  3*y_ audio))
       & (cos)
       & (*(x))
 
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + vec2 (0 + 0.5, time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -890,9 +884,9 @@ rclogo14 = logo
     bb = texture2D backBuffer (g uvN)
       * vec4 (v2, v2, v2, 1)
     g = id
-      -- >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & abs))
-      >>> (\x -> x ^* (0.4  + (!X) audio))
-      -- >>> (rot ((!X) audio * 0.2 + pi))
+      -- >>> (\x -> vec2 (x & x_  & abs, x & y_  & abs))
+      >>> (\x -> x ^* (0.4  + x_ audio))
+      -- >>> (rot (x_ audio * 0.2 + pi))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r + r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -903,35 +897,35 @@ rclogo14 = logo
 rclogo15 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (rotColor . fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (rotColor . fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (ff . f $ uvN)
       * vec4 (v1, v1, v1, 1)
 
-    v1 = v ((!W) audio * 10)
-    v2 = v ((!Y) audio)
+    v1 = v (w_ audio * 10)
+    v2 = v (y_ audio)
 
     v x= len uvN
-      & (*(3 -  3*(!Y) audio))
+      & (*(3 -  3*y_ audio))
       & (cos)
       & (*(x))
       & clamp 0.5 1
 
     f = id
       >>> (\x -> x - mouse)
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
     ff = id
       >>> (\x -> x * 0.5 + 0.5)
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
       -- * vec4 (v2, v2, v2, 1)
     g = id
-      >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & id))
-      >>> (\x -> x ^* (0.4  + (!X) audio))
-      >>> (rot ((!X) audio * 0.4))
+      >>> (\x -> vec2 (x & x_  & abs, x & y_  & id))
+      >>> (\x -> x ^* (0.4  + x_ audio))
+      >>> (rot (x_ audio * 0.4))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r + r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -942,9 +936,9 @@ rclogo15 = logo
 rclogo16 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select ((ff . f) uvN `lt` 1 * (ff . f) uvN `gt` (-1))
-      (rotColor $ mix ((!W) stuff) stuff bb) (rotColor . fade$  bb)
-    rotColor x = vec4 (vec3 ((!Z) x * a, (!X) x *b, (!Y) x *c), (!W) x)
+    chan1OrWhite = sel ((ff . f) uvN `lt` 1 * (ff . f) uvN `gt` (-1))
+      (rotColor $ mix (w_ stuff) stuff bb) (rotColor . fade$  bb)
+    rotColor x = vec4 (vec3 (z_ x * a, x_ x *b, y_ x *c), w_ x)
     a = sin (time * 0.1 + 1) * 0.5 + 0.8
     b = sin (time * 0.1) * 0.5 + 0.8
     c = 1
@@ -953,19 +947,19 @@ rclogo16 = logo
     stuff = texture2D channel1 (ff . f $ uvN)
       * vec4 (v1, v1, v1, 1)
 
-    v1 = v ((!W) audio * 10)
-    v2 = v ((!Y) audio)
+    v1 = v (w_ audio * 10)
+    v2 = v (y_ audio)
 
     v x= len uvN
-      & (*(3 -  3*(!Y) audio))
+      & (*(3 -  3*y_ audio))
       & (cos)
       & (*(x))
       & clamp 0.5 1
 
     f = id
       >>> (\x -> x - mouse)
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
     ff = id
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -974,9 +968,9 @@ rclogo16 = logo
     bb = texture2D backBuffer (g uvN)
       -- * vec4 (v2, v2, v2, 1)
     g = id
-      -- >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & id))
-      >>> (\x -> x ^* (0.4  + (!X) audio))
-      -- >>> (rot ((!X) audio * 0.4))
+      -- >>> (\x -> vec2 (x & x_  & abs, x & y_  & id))
+      >>> (\x -> x ^* (0.4  + x_ audio))
+      -- >>> (rot (x_ audio * 0.4))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r + r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -987,25 +981,25 @@ rclogo16 = logo
 rclogo17 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (fade $ mix ((!W) stuff) stuff bb) (rotColor . fade$  bb)
-    rotColor x = vec4 (vec3 (1 - (!Y) x, (!Z) x, 1 -  (!X) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (fade $ mix (w_ stuff) stuff bb) (rotColor . fade$  bb)
+    rotColor x = vec4 (vec3 (1 - y_ x, z_ x, 1 -  x_ x), w_ x)
     fade x = x ** 0.8
     stuff = texture2D channel1 (f $ uvN)
       * vec4 (v1, v1, v1, 1)
 
-    v1 = v ((!W) audio * 10)
-    v2 = v ((!Y) audio)
+    v1 = v (w_ audio * 10)
+    v2 = v (y_ audio)
       & clamp 0.5 1
 
     v x= len uvN
-      & (*(3 -  3*(!Y) audio))
+      & (*(3 -  3*y_ audio))
       & (cos)
       & (*(x))
 
     f = id
-      >>> (\x -> vec2 (x ! X, x ! Y & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, y_ x & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + vec2 (0 + 0.5, time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -1014,9 +1008,9 @@ rclogo17 = logo
     bb = texture2D backBuffer (g uvN)
       * vec4 (v2, v2, v2, 1)
     g = id
-      >>> (\x -> vec2 (x & (!X)  & abs, x & (!Y)  & abs))
-      >>> (\x -> x ^* (0.4  + (!X) audio))
-      >>> (rot ((!X) audio * 0.2))
+      >>> (\x -> vec2 (x & x_  & abs, x & y_  & abs))
+      >>> (\x -> x ^* (0.4  + x_ audio))
+      >>> (rot (x_ audio * 0.2))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r + r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -1027,14 +1021,14 @@ rclogo17 = logo
 rclogo18 = logo 
   where
     logo = chan1OrWhite
-    chan1OrWhite = select (f uvN `lt` 1 * f uvN `gt` (-1))
-      (mix ((!W) stuff) stuff bb) (fade bb)
-    rotColor x = vec4 (vec3 ((!Z) x, (!X) x, (!Y) x), (!W) x)
+    chan1OrWhite = sel (f uvN `lt` 1 * f uvN `gt` (-1))
+      (mix (w_ stuff) stuff bb) (fade bb)
+    rotColor x = vec4 (vec3 (z_ x, x_ x, y_ x), w_ x)
     fade x = x ** 0.90
     stuff = texture2D channel1 (f $ uvN)
     f = id
-      >>> (\x -> vec2 (x ! X, x & (!Y) & negate))
-      >>> (^*((!Y) audio & linexp (-1, 1, 1, 5)))
+      >>> (\x -> vec2 (x_ x, x & y_ & negate))
+      >>> (^*(y_ audio & linexp (-1, 1, 1, 5)))
       >>> (\x -> x + copy (time * speed))
       >>> (\x -> x * 0.5 + 0.5)
       >>> (fract)
@@ -1042,9 +1036,9 @@ rclogo18 = logo
     speed = 0.5
     bb = texture2D backBuffer (g uvN)
     g = id
-      >>> (\x -> vec2 (x & (!X)  & negate & abs, x & (!Y) ))
-      >>> (\x -> x ^* (0.4 + (!X) audio))
-      >>> (rot ((!X) audio * 0.2))
+      >>> (\x -> vec2 (x & x_  & negate & abs, x & y_ ))
+      >>> (\x -> x ^* (0.4 + x_ audio))
+      >>> (rot (x_ audio * 0.2))
       >>> (\x -> x - vec2 (cos p, sin p) ^* r)
       >>> (\x -> x * 0.5 + 0.5)
       >>> fract
@@ -1054,23 +1048,23 @@ rclogo18 = logo
 
 rclogo19 = logosAndTrip
   where
-    whiteify v = mix ((!W) v) (vec4 ((!X) v, (!Y) v, (!Z) v, 1)) (vec4 (1, 1, 1, 1))
-    colorTrans v = vec4 (1 - (!Y) v, 1 - (!Z) v, 1 - (!X) v, (!W) v)
-    rotColor v = vec4 ((!Y) v, (!Z) v, (!X) v, (!W) v)
-    logosAndTrip = whiteify $ mix ((!W) logos) logos (bb)
+    whiteify v = mix (w_ v) (vec4 (x_ v, y_ v, z_ v, 1)) (vec4 (1, 1, 1, 1))
+    colorTrans v = vec4 (1 - y_ v, 1 - z_ v, 1 - x_ v, w_ v)
+    rotColor v = vec4 (y_ v, z_ v, x_ v, w_ v)
+    logosAndTrip = whiteify $ mix (w_ logos) logos (bb)
     fade x = x ** 0.90
       where
-        k = (!Y) mouse
+        k = y_ mouse
     bb =  fade . rotColor $ texture2D backBuffer (g uvN)
       where
         g = id
           >>> (\x -> x * copy m)
-          -- >>> (\x -> vec2 (abs $ (!X) x, abs $ (!Y) x))
-          -- >>> (rot ((!W) audio * (!Y) mouse))
+          -- >>> (\x -> vec2 (abs $ x_ x, abs $ y_ x))
+          -- >>> (rot (w_ audio * y_ mouse))
           >>> (\x -> x - copy (sin (time * 0.1) * 0.02))
           >>> (\x -> x * 0.5 + 0.5)
-        m = 0.5 + (!X) audio
-    logos = foldl (\x y -> mix ((!W) y) (y) (x)) 0 $ [ logo (-1) 
+        m = 0.5 + x_ audio
+    logos = foldl (\x y -> mix (w_ y) (y) (x)) 0 $ [ logo (-1) 
                                                   , logo 0
                                                   , logo 1
                                                   ]
@@ -1079,24 +1073,39 @@ rclogo19 = logosAndTrip
         -- foo = 1
         foo = sin (time + n * 4 * pi/3) * 0.33 + 0.66
         n = fromInteger e
-        withOpacity k v = vec4 ((!X) v, (!Y) v, (!Z) v, k * (!W) v)
-        chan1OrWhite input  = select ((ff . f) uvN `lt` 1 * (ff . f) uvN `gt` (-1))
+        withOpacity k v = vec4 (x_ v, y_ v, z_ v, k * w_ v)
+        chan1OrWhite input  = sel ((ff . f) uvN `lt` 1 * (ff . f) uvN `gt` (-1))
           (texture2D channel1 (ff . f $  uvN)) (vec4 (1, 1, 1, 0))
           where
             f = id
               >>> (\v -> v + input)
-              >>> (\v -> vec2 ((!X) v, negate $ (!Y) v))
+              >>> (\v -> vec2 (x_ v, negate $ y_ v))
               >>> (rot t)
-              >>> (\x -> x ^* ((!X) audio * (5 + n * 2)))
+              >>> (\x -> x ^* (x_ audio * (5 + n * 2)))
             ff = id
               >>> (\x -> x * 0.5 + 0.5)
               >>> (fract)
               >>> (\x -> x * 5)
             t = sin (time * 0.5) * 0.5
 
+over :: Vec4 -> Vec4 -> Vec4
+over x y = mix (a) x' y'
+  where
+    x' = clamp 0 1 x
+    y' = clamp 0 1 y
+    a = 1 - w_ x'
+
+fresh = color `over` bb where
+  bb = texture2D backBuffer (f uvN)
+  color = sel (abs uvN `lt` 0.5) (vec4(1, 1, 1, 1)) (vec4(0, 0, 0, 1))
+  f = id
+    >>> (\x -> x*0.9)
+    >>> (\x -> x*0.5 + 0.5)
 
 
-main = putStrLn . toGLSL $ gameOfLifeAudio
+
+
+output = toProgram fresh
 
 
 
