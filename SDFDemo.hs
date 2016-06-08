@@ -1,15 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
+-- {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ExplicitForAll #-}
 
 module SDFDemo where
 
 import Hylogen.WithHylide
-import Control.Arrow
 
-sphere :: Vec3 -> Vec1 -> Vec3 -> Vec1
-sphere spherePos radius eyePos = len (eyePos - spherePos) - radius
-
+output :: Program
+output = toProgram raymarch8
 
 
 rot :: Vec1 -> Vec2 -> Vec2
@@ -18,9 +16,6 @@ rot phi a = vec2 ( cos phi * x_ a
                  , (-1) * sin phi * x_ a
                    + cos phi * y_ a
                  )
-
-plane :: Vec3 -> Vec3 -> Vec3 -> Vec1
-plane planePos normal p = normal <.> (p - planePos)
 
 rep :: forall n. Veccable n => Vec n ->  Vec n -> Vec n
 rep c p = mod_  p c - 0.5 * c
@@ -42,7 +37,7 @@ raymarch8 = id
     maxSteps = 32
 
 
-    ro = vec3 (uvN ^* (len uvN * 2), tan (time * (-0.1)))
+    ro = vec3 (rot time uvN, tan (time * (-0.1)))
     rd = eye ^* 0.8 + right ^* x_ uvN + up ^* y_ uvN --perspective!
       & (\x -> vec3 (rot (time * 0.1) (vec2(x_ x, y_ x)), z_ x))
       & normalize
@@ -71,7 +66,4 @@ raymarch8 = id
          , sel continue (sel cond false true) continue
          )
 
-main = print output
 
-output :: Program
-output = toProgram raymarch8
