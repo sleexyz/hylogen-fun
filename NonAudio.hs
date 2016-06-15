@@ -652,4 +652,4 @@ testNewVer1 = color
     shman n = (*n) >>> sin >>> (/n)
 
 
-output = toProgram testNewVer1
+output = toProgram $ vec4(red, 1)
