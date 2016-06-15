@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
--- {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ExplicitForAll #-}
 
 module SDFDemo where
@@ -8,6 +7,7 @@ import Hylogen.WithHylide
 
 output :: Program
 output = toProgram raymarch8
+
 
 
 rot :: Vec1 -> Vec2 -> Vec2
