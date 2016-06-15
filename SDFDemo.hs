@@ -49,7 +49,7 @@ raymarch8 = id
             `min_` (box (vec3(mouse, -2.5)) (vec3(0.1,5, 0.1)) (f p))
             `min_` (box (vec3(mouse, -2.5)) (vec3(0.1,0.1, 5)) (f p))
       where
-        f = rep 5
+        f p = rep 6 p + rep 1 p
 
 
     fn :: Vec1 -> (Vec3, Vec1, Booly) -> (Vec3, Vec1, Booly)
