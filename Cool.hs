@@ -10,6 +10,9 @@ import Data.VectorSpace
 import Data.Function
 import Control.Arrow
 
+sel :: Veccable n => Booly -> Vec n -> Vec n -> Vec n
+sel b x y = b ? (x, y)
+
 rot :: Vec1 -> Vec2 -> Vec2
 rot phi a = vec2 ( cos phi * (x_ a)
                    + sin phi * (y_ a)
