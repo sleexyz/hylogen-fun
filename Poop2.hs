@@ -20,9 +20,6 @@ rep c p = mod_  p c - 0.5 * c
 mirrorX v = vec2 (abs (x_ v), y_ v)
 mirrorY v = vec2 (x_ v, abs(y_ v))
 
-
-
-
 output = toProgram $ vec4 (r, g, b, 0.01) + bb
   where
     r = v
