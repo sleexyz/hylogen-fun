@@ -17,6 +17,8 @@ rot phi a = vec2 ( cos phi * (x_ a)
                  , (-1) * sin phi * (x_ a)
                    + cos phi * (y_ a)
                  )
+                
+select = sel
 
 
 infixl 5 <&>
@@ -52,7 +54,7 @@ over x y = mix (a) x' y'
 
 -- TODO: rename setOpacity
 opacity :: Vec1 -> Vec4 -> Vec4
-opacity f x = vec4 (x_ x, y_ x, x!Z, f)
+opacity f x = vec4 (x_ x, y_ x, z_ x, f)
 
 field :: Integer -> [Vec2]
 field i = [vec2 (fromInteger x,fromInteger y) | x <- rng, y <- rng]
@@ -89,16 +91,17 @@ testNewVer1 = color
   where
     bb = texture2D backBuffer (f uvN)
     f = id
-      >>>(^*(audio ! X + osc7))
-      >>>(\x -> vec2 (absx_ x, abs x_ y))
-      >>>(rot (pi + 0.2 *  y_ audio))
-      >>>(\x -> x - mouse)
-      >>>(*0.5) >>>(+0.5)
+    -- f x = x
+    --   & (^*(x_ audio + osc7))
+    --   & (\x -> vec2 (absx_ x, abs x_ y))
+    --   & (rot (pi + 0.2 *  y_ audio))
+    --   & (\x -> x - mouse)
+    --   & (*0.5) & (0.5)
 
     color = foldr over bb myfield 
       where
         myfield = field 1
-          <&> (^*(osc6 * audio ! X))
+          <&> (^*(osc6 * x_ audio ))
           <&>(rot (time))
           <&> solid
 

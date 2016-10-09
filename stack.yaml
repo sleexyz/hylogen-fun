@@ -1,0 +1,10 @@
+flags: {}
+extra-package-dbs: []
+packages:
+  - '.'
+  - /home/slee2/projects/hylide
+  - /home/slee2/projects/hylogen-1.4
+extra-deps:
+  - hylide-1.5.0
+  - hylogen-1.4.1
+resolver: lts-7.2

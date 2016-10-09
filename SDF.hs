@@ -9,6 +9,8 @@ import Hylogen.WithHylide
 sphere :: Vec3 -> Vec1 -> Vec3 -> Vec1
 sphere spherePos radius eyePos = len (eyePos - spherePos) - radius
 
+black = vec3 (0, 0, 0)
+white = vec3 (1, 1, 1)
 
 
 rot :: Vec1 -> Vec2 -> Vec2

@@ -8,6 +8,9 @@ import Data.VectorSpace
 import Data.Function
 import Control.Arrow
 
+black = vec3(0, 0, 0)
+white = vec3(1, 1, 1)
+
 rot :: Vec1 -> Vec2 -> Vec2
 rot phi a = vec2 ( cos phi * (x_ a)
                    + sin phi * (y_ a)

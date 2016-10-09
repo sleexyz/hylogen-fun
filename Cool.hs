@@ -3,15 +3,15 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ExplicitForAll #-}
 
-module Audio where
+module Cool where
 
 import Hylogen.WithHylide
 import Data.VectorSpace
 import Data.Function
 import Control.Arrow
 
-sel :: Veccable n => Booly -> Vec n -> Vec n -> Vec n
-sel b x y = b ? (x, y)
+-- sel :: Veccable n => Booly -> Vec n -> Vec n -> Vec n
+-- sel b x y = b ? (x, y)
 
 rot :: Vec1 -> Vec2 -> Vec2
 rot phi a = vec2 ( cos phi * (x_ a)
@@ -41,15 +41,15 @@ fresh = color `over` c bb
     -- >>> (\x -> rep 2.5 x)
     >>> (\x -> abs x)
   f = id
-    >>> (\x -> vec2(abs x_ x, abs(y_ x)))
-    -- >>> (\x -> x + vec2 (0, n $audio!Y))
-    >>> (\x -> x + mouse)
-    -- >>> (rot (audio!X))
-    >>> (rot (pi/3))
-    -- >>> (\x -> x + vec2 (0, n $audio!Y))
-    -- >>> (rot (audio!X))
-    >>> (\x -> x^*(1.4 + w_ audio))
-    >>> (\x -> x*0.5 + 0.5)
+    -- >>> (\x -> vec2(abs x_ x, abs(y_ x)))
+    -- -- >>> (\x -> x + vec2 (0, n $audio!Y))
+    -- >>> (\x -> x + mouse)
+    -- -- >>> (rot (audio!X))
+    -- >>> (rot (pi/3))
+    -- -- >>> (\x -> x + vec2 (0, n $audio!Y))
+    -- -- >>> (rot (audio!X))
+    -- >>> (\x -> x^*(1.4 + w_ audio))
+    -- >>> (\x -> x*0.5 + 0.5)
   n = id
     >>> negate
 
@@ -63,11 +63,11 @@ fresh1 = color `over` c bb where
     >>> (\x -> rep 2.5 x)
     >>> (\x -> abs x)
   f = id
-    >>> (\x -> vec2(abs x_ x, abs(y_ x)))
-    >>> (\x -> x + vec2 (0, n $y_ audio))
-    >>> (rot (x_ audio))
-    >>> (\x -> x^*(1.4 + w_ audio))
-    >>> (\x -> x*0.5 + 0.5)
+    -- >>> (\x -> vec2(abs x_ x, abs(y_ x)))
+    -- >>> (\x -> x + vec2 (0, n $y_ audio))
+    -- >>> (rot (x_ audio))
+    -- >>> (\x -> x^*(1.4 + w_ audio))
+    -- >>> (\x -> x*0.5 + 0.5)
   n = id
     >>> negate
 
@@ -81,11 +81,11 @@ fresh2 = color `over` c bb where
     >>> (\x -> rep 2.5 x)
     >>> (\x -> abs x)
   f = id
-    >>> (\x -> vec2(abs x_ x, abs(x!Y)))
-    >>> (\x -> x - mouse)
-    >>> (\x -> x^*(x_ audio + 0.5))
-    >>> (rot (w_ audio * 20 + pi/2))
-    >>> (\x -> x*0.5 + 0.5)
+    -- >>> (\x -> vec2(abs (x_ x), abs(y_ x)))
+    -- >>> (\x -> x - mouse)
+    -- >>> (\x -> x^*(x_ audio + 0.5))
+    -- >>> (rot (w_ audio * 20 + pi/2))
+    -- >>> (\x -> x*0.5 + 0.5)
   n = id
     >>> negate
 
@@ -98,11 +98,11 @@ fresh3 = color `over` c bb where
   g = id
     >>> (\x -> abs x)
   f = id
-    >>> (\x -> vec2(abs x_ x, abs(y_ x)))
-    >>> (\x -> x - mouse)
-    >>> (\x -> x^*(x_ audio + 0.5))
-    >>> (rot (w_ audio * 20 + pi/2))
-    >>> (\x -> x*0.5 + 0.5)
+    -- >>> (\x -> vec2(abs x_ x, abs(y_ x)))
+    -- >>> (\x -> x - mouse)
+    -- >>> (\x -> x^*(x_ audio + 0.5))
+    -- >>> (rot (w_ audio * 20 + pi/2))
+    -- >>> (\x -> x*0.5 + 0.5)
   n = id
     >>> negate
 

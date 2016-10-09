@@ -84,6 +84,8 @@ bbEffects x = x
   & lmap (view norm)
   & lmap (*0.9)
   & lmap (rot (pi/3))
+  & lmap (*(copy $ sin time))
+
 
 rgb = vec4 (v, v, v, 1)
 v = cos (sin . (*0.25) $  time) * mask

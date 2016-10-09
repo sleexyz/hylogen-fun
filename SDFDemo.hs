@@ -8,6 +8,11 @@ import Hylogen.WithHylide
 output :: Program
 output = toProgram raymarch8
 
+black :: Vec3
+black = vec3(0, 0, 0)
+
+white :: Vec3
+white = vec3(1, 1, 1)
 
 
 rot :: Vec1 -> Vec2 -> Vec2

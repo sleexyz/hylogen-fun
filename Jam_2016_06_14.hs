@@ -3,14 +3,13 @@
 module Jam_2016_06_14 where
 
 import Hylogen.WithHylide
-import Hylogen.AST.Expr
+import Hylogen.Expr
 
 output = toProgram noisyink
 
--- (?) :: (ToGLSLType a) => Booly -> (Expr a, Expr a) -> Expr a
--- b ? (x, y) = sel b x y
---
-sel b x y = b ? (x, y)
+(?) :: (ToGLSLType a) => Booly -> (Expr a, Expr a) -> Expr a
+b ? (x, y) = sel b x y
+(<&>) = flip fmap
 
 rot :: Vec1 -> Vec2 -> Vec2
 rot phi a = vec2 ( cos phi * (x_ a)

@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Jam_2016_10_7 where
+module Jam_2016_10_07 where
 
 import Hylogen.WithHylide
 import Data.Profunctor
