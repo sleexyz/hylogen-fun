@@ -12,8 +12,6 @@ type Iso s t a b = forall p. Profunctor p => p a b -> p s t
 type Iso' a b = Iso a b a b
 type Auto a = Iso' a a
 
-
-
 rot :: Vec1 -> Vec2 -> Vec2
 rot phi a = vec2 ( cos phi * (x_ a)
                    + sin phi * (y_ a)
@@ -21,7 +19,7 @@ rot phi a = vec2 ( cos phi * (x_ a)
                    + cos phi * (y_ a)
                  )
 
-norm :: (Floating a) => Auto a
+norm :: (Floating a) => Iso' a a
 norm = dimap (\x -> x * 0.5 + 0.5) (\x -> x * 2 - 1)
 
 hsv :: Optic' (->) (Vec4) (Vec4)
@@ -68,3 +66,5 @@ v = vQ len uvN
 
 vQ :: Optic' (->) Vec2 Vec1
 vQ x =  x
+ & lmap (\x -> x + rep 0.1 x)
+ & lmap (^*(sin (2 * pi * beat + 1)))
