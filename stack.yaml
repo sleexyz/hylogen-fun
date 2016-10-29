@@ -2,14 +2,14 @@ flags: {}
 extra-package-dbs: []
 packages:
 - '.'
+- /home/slee2/projects/hylogen/hylogen
+- /home/slee2/projects/hylogen/hylide
 # - location: 
-#     git: https://github.com/sleexyz/hylogen
-#     commit: 6a86ee32e5b869a877151f74064572225e1a0398
 #   extra-dep: true
 #   subdirs:
 #   - hylogen
 #   - hylide
-extra-deps:
-- hylide-0.1.5.0
-- hylogen-0.1.5.0
+# extra-deps:
+# - hylide-*
+# - hylogen*
 resolver: lts-7.5
