@@ -60,12 +60,13 @@ hsv = dimap rgb2hsv hsv2rgb
 rep :: forall n. Veccable n => Vec n ->  Vec n -> Vec n
 rep c p = mod_  p c - 0.5 * c
 
+-- rgbF :: Vec1 -> (Vec2 -> Vec4) -> (Vec2 -> Vec4)
 rgbF :: Vec1 -> Optic' (->) Vec2 Vec4
-rgbF m q pos = vec4 (r, g, b, a)
+rgbF offset q pos = vec4 (r, g, b, a)
   where
-    r = q (pos + copy m) & x_
+    r = q (pos + copy offset) & x_
     g = q pos & y_
-    b = q (pos - copy m) & z_
+    b = q (pos - copy offset) & z_
     a = q pos & w_
 
 phi uv = atan (y_ uv/x_ uv)
