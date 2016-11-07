@@ -12,7 +12,6 @@ import Hylogen.WithHylide hiding (uv)
 import Data.Profunctor
 import Hylogen.Expr
 
-
 type Optic p s t a b = p a b -> p s t
 type Optic' p a b = Optic p a b a b
 type Iso s t a b = forall p. (Profunctor p) => Optic p s t a b
@@ -26,7 +25,6 @@ type Image = Vec2 -> Vec4
 
 (?) :: (ToGLSLType a) => Booly -> (Expr a, Expr a) -> Expr a
 (?) c (a, b) = sel c a b
-
 
 bw :: Vec1 -> Vec4
 bw v = vec4 (v, v, v, 1)
@@ -51,6 +49,12 @@ less = dimap (id) (*0.1)
 muchless :: (Floating a) => Optic' (->) a a
 muchless = dimap (id) (*0.01)
 
+more :: (Floating a) => Optic' (->) a a
+more = dimap (id) (*10)
+
+muchmore :: (Floating a) => Optic' (->) a a
+muchmore = dimap (id) (*100)
+
 norm :: (Floating a) => Iso' a a
 norm = dimap (\x -> x * 0.5 + 0.5) (\x -> x * 2 - 1)
 
@@ -58,9 +62,8 @@ hsv :: Optic' (->) (Vec4) (Vec4)
 hsv = dimap rgb2hsv hsv2rgb
 
 rep :: forall n. Veccable n => Vec n ->  Vec n -> Vec n
-rep c p = mod_  p c - 0.5 * c
+rep c p = (p - 0.5 * c) `mod_` c - 0.5 * c
 
--- rgbF :: Vec1 -> (Vec2 -> Vec4) -> (Vec2 -> Vec4)
 rgbF :: Vec1 -> Optic' (->) Vec2 Vec4
 rgbF offset q pos = vec4 (r, g, b, a)
   where
@@ -77,7 +80,6 @@ scale s = dimap (*s) (/s)
 mirrorX :: Vec2 -> Vec2
 mirrorX v = vec2 (abs $ x_ v, y_ v)
 
-
 mirrorY :: Vec2 -> Vec2
 mirrorY v = vec2 (x_ v, abs $ y_ v)
 
@@ -92,7 +94,6 @@ polar = dimap c2p p2c where
   c2p v = vec2 (len v, phi v)
   p2c :: Vec2 -> Vec2
   p2c v = x_  v *^ vec2 (cos (y_ v), sin (y_ v))
-
 
 -- fixme: make polymorphic
 modX :: (Vec1 -> Vec1) -> (Vec4 -> Vec4)
@@ -119,14 +120,19 @@ rand2 x = fract(sin(x <.> vec2(12.9898, 4.1414))) *^ 43758.5453
 b2a :: Vec4 -> Vec4
 b2a x = vec4 (xyz_ x, x_ x)
 
-gate :: (Veccable n) => Vec n -> Vec n -> Vec n -> Vec n
-gate s e x = ((x `geq` s) * (x `lt` e)) ? (1, 0)
+-- deprecated
+gate' :: (Veccable n) => Vec n -> Vec n -> Vec n -> Vec n
+gate' s e x = ((x `geq` s) * (x `lt` e)) ? (1, 0)
+
+gate :: (Veccable n) => Vec n -> Vec n -> Vec n
+gate r x = ((x `geq` (0 - r)) * (x `lt` r)) ? (1, 0)
 
 diff :: Floating a => (a -> a) -> (a -> a)
 diff f x = (f (x - delta) - f (x + delta))/(delta * 2) where
   delta = 0.00001
-    
-  
+
+persp h z x = vec2 (x_ x / (y_ x * h - z), y_ x/ (y_ x * h - z))
+
 grad :: (Vec2 -> Vec1) -> (Vec2 -> Vec2)
 grad f x = vec2 (dx, dy) where
   dx = f (vec2 (x_ x - delta, y_ x)) - f (vec2 (x_ x + delta, y_ x))/delta
@@ -134,3 +140,9 @@ grad f x = vec2 (dx, dy) where
   delta = 1
 
 bpf pos delta = hsv (modX (clamp (pos - delta) (pos + delta)))
+
+mouseX = x_ mouse
+mouseY = y_ mouse
+
+opaque x = vec4 (x_ x, y_ x, z_ x, 1)
+modV f x = vec4 (f (x_ x), f (y_ x), f (z_ x), w_ x)
