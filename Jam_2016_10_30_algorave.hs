@@ -36,10 +36,7 @@ vF x = x
 
 f x = 0
   -- + x_ x
-  -- + y_ x 
-  -- - len x * w_ audio * 1 
+  -- + y_ x
+  -- - len x * w_ audio * 1
   -- + (x_$ gate (copy osc3) x)
   + (x_$ gate (copy osc3) x)
-  
-
-

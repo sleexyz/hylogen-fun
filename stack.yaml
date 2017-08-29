@@ -12,4 +12,4 @@ packages:
 # extra-deps:
 # - hylide-*
 # - hylogen*
-resolver: lts-7.5
+resolver: lts-8.0

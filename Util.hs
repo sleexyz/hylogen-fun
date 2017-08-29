@@ -146,3 +146,5 @@ mouseY = y_ mouse
 
 opaque x = vec4 (x_ x, y_ x, z_ x, 1)
 modV f x = vec4 (f (x_ x), f (y_ x), f (z_ x), w_ x)
+
+sig x = 1  / (1 + exp(negate x))
